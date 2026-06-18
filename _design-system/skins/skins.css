@@ -1,0 +1,59 @@
+/* ============================================================
+   Design System — SKINS
+   สลับลุคทั้ง dashboard ด้วย class เดียวบน <body> เช่น  <body class="skin-byd-red">
+   ทุก skin override เฉพาะ "ค่า" ของ token เดิม -> component/layout ไม่ต้องแตะ
+   ============================================================ */
+
+/* ---------- BYD Red (light, automotive brand) ---------- */
+body.skin-byd-red{
+  --bg:#F3F4F6; --card:#FFFFFF; --card-2:#FAFBFC; --line:#E7E9ED; --grid:#EAECEF;
+  --ink:#171A1F; --muted:#697079; --faint:#9AA1AB;
+  --accent:#E2231A; --accent-2:#2B2F36; --accent-soft:#FCEBEA; --on-accent:#fff;
+  --pos:#12875A; --neg:#E2231A; --pos-soft:rgba(18,135,90,.10); --neg-soft:#FCEBEA;
+  --c1:#E2231A; --c2:#2B2F36; --c3:#8A9099; --c4:#B00D14;
+  --c5:#5B6472; --c6:#C2C7CF; --c7:#E0668F; --c8:#A32A2C;
+}
+
+/* ---------- Finance Dark (executive/finance command) ---------- */
+body.skin-finance-dark{
+  --bg:#0C1018; --card:#141A26; --card-2:#171E2C; --line:#243044; --grid:#1E2940;
+  --ink:#EAF0FA; --muted:#8A98B0; --faint:#5C6880;
+  --accent:#27C2A0; --accent-2:#3D7DF6; --accent-soft:rgba(39,194,160,.12); --on-accent:#04140F;
+  --pos:#27C281; --neg:#F0556B; --pos-soft:rgba(39,194,129,.14); --neg-soft:rgba(240,85,107,.14);
+  --c1:#27C2A0; --c2:#3D7DF6; --c3:#F2B53C; --c4:#9C6BFF;
+  --c5:#56D0E0; --c6:#F0556B; --c7:#8A98B0; --c8:#E0668F;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 22px rgba(0,0,0,.35);
+}
+
+/* ---------- SaaS Violet (modern product analytics, light) ---------- */
+body.skin-saas-violet{
+  --bg:#F7F7FB; --card:#FFFFFF; --card-2:#FAFAFE; --line:#ECECF4; --grid:#EEEEF6;
+  --ink:#1B1A2E; --muted:#6E6B85; --faint:#A3A0B8;
+  --accent:#6D5CF6; --accent-2:#1B1A2E; --accent-soft:#EEEBFE; --on-accent:#fff;
+  --pos:#109C6E; --neg:#E5484D; --pos-soft:rgba(16,156,110,.10); --neg-soft:rgba(229,72,77,.10);
+  --c1:#6D5CF6; --c2:#22C3A6; --c3:#FF8A65; --c4:#3D7DF6;
+  --c5:#F2B53C; --c6:#E0668F; --c7:#1B1A2E; --c8:#9AA1AB;
+}
+
+/* ---------- Luxury Gold (premium, dark) ---------- */
+body.skin-luxury-gold{
+  --bg:#0E0E0C; --card:#171612; --card-2:#1C1B16; --line:#2E2C24; --grid:#26241D;
+  --ink:#F4EEDD; --muted:#A39B82; --faint:#6E6753;
+  --accent:#C9A24B; --accent-2:#E9DEC2; --accent-soft:rgba(201,162,75,.13); --on-accent:#13110B;
+  --pos:#9CB37A; --neg:#C46A5A; --pos-soft:rgba(156,179,122,.13); --neg-soft:rgba(196,106,90,.14);
+  --c1:#C9A24B; --c2:#E9DEC2; --c3:#8C7A4E; --c4:#9CB37A;
+  --c5:#C46A5A; --c6:#6E6753; --c7:#D9C48A; --c8:#A39B82;
+  --shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 26px rgba(0,0,0,.45);
+}
+
+/* ---------- Command Center (dense ops, near-black + neon) ---------- */
+body.skin-command-center{
+  --bg:#070A0F; --card:#0E141C; --card-2:#101822; --line:#1B2A38; --grid:#152230;
+  --ink:#DCEAF5; --muted:#6C8398; --faint:#43586B;
+  --accent:#19E3C4; --accent-2:#2FA8FF; --accent-soft:rgba(25,227,196,.10); --on-accent:#021310;
+  --pos:#19E3A0; --neg:#FF5C7A; --pos-soft:rgba(25,227,160,.12); --neg-soft:rgba(255,92,122,.12);
+  --c1:#19E3C4; --c2:#2FA8FF; --c3:#FFC857; --c4:#B36BFF;
+  --c5:#FF5C7A; --c6:#43E0FF; --c7:#6C8398; --c8:#7CF5B0;
+  --radius:10px;
+  --shadow:0 0 0 1px rgba(25,227,196,.04), 0 8px 22px rgba(0,0,0,.5);
+}

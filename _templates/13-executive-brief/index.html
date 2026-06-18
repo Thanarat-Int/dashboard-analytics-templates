@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Template · Executive Brief</title>
+<link rel="stylesheet" href="../../_design-system/tokens.css" />
+<link rel="stylesheet" href="../../_design-system/components.css" />
+<link rel="stylesheet" href="../../_design-system/skins/skins.css" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="../../_design-system/charts.js"></script>
+<style>
+  /* --- executive polish: more air, calmer, headline-led --- */
+  body{--gap:18px}
+  .wrap{max-width:1380px}
+  .ds-header{margin-bottom:22px}
+
+  /* headline insight banner */
+  .insight{display:flex;gap:16px;align-items:flex-start;background:var(--card);border:1px solid var(--line);
+    border-left:4px solid var(--accent);border-radius:var(--radius);padding:18px 22px;margin-bottom:var(--gap);
+    box-shadow:var(--shadow)}
+  .insight .lead{font-size:18px;font-weight:700;color:var(--ink);line-height:1.5;letter-spacing:-.1px}
+  .insight .lead b.good{color:var(--pos)} .insight .lead b.bad{color:var(--neg)}
+  .insight .meta{font-size:12.5px;color:var(--muted);margin-top:7px}
+
+  /* KPI strip with sparkline */
+  .kpis{--kc:4}
+  .kpi2{padding:18px 20px}
+  .kpi2 .lab{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);font-weight:700}
+  .kpi2 .val{font-size:32px;font-weight:780;color:var(--ink);letter-spacing:-.6px;margin-top:8px;
+    font-variant-numeric:tabular-nums;line-height:1}
+  .kpi2 .row{display:flex;align-items:center;justify-content:space-between;margin-top:10px;gap:10px}
+  .kpi2 .spark{width:96px;height:30px;flex:none}
+  .kpi2 .sub{font-size:12px;color:var(--muted)}
+
+  /* hero */
+  .hero .tk{font-size:13px;color:var(--muted);margin:-2px 0 12px;font-style:italic}
+  .hero .canvas-box{height:330px}
+
+  /* attention list */
+  .attn{display:flex;flex-direction:column;gap:2px}
+  .attn .item{display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center;
+    padding:12px 4px;border-bottom:1px solid var(--line)}
+  .attn .item:last-child{border-bottom:none}
+  .attn .nm{font-size:13.5px;font-weight:600;color:var(--ink)}
+  .attn .att{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
+  .attn .track{grid-column:1/3;height:5px;border-radius:3px;background:var(--grid);overflow:hidden;margin-top:2px}
+  .attn .track i{display:block;height:100%;border-radius:3px}
+  .attn .why{grid-column:1/3;font-size:11.5px;color:var(--muted)}
+
+  /* mini stat rail */
+  .rail{display:flex;flex-direction:column;gap:16px;justify-content:center;height:100%}
+  .rail .r{display:flex;align-items:baseline;justify-content:space-between}
+  .rail .r .k{font-size:12.5px;color:var(--muted)}
+  .rail .r .v{font-size:22px;font-weight:750;color:var(--ink);font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body class="skin-finance-dark">
+<div class="wrap">
+  <header class="ds-header">
+    <div class="brand">
+      <div class="logo"><span class="mark">EXEC</span><span class="tag">BOARD BRIEF</span></div>
+      <div>
+        <h1>Executive Brief <span class="tag-pill">Template</span></h1>
+        <p>Archetype 13 · present — น้อยชิ้น เน้นข้อสรุป + จุดที่ต้อง action (board-ready)</p>
+      </div>
+    </div>
+    <div class="ctx">
+      <select class="skin-select" id="skin" onchange="DS.setSkin(this.value)">
+        <option value="finance-dark">Skin: Finance Dark</option>
+        <option value="byd-red">Skin: BYD Red</option>
+        <option value="luxury-gold">Skin: Luxury Gold</option>
+        <option value="saas-violet">Skin: SaaS Violet</option>
+        <option value="command-center">Skin: Command Center</option>
+      </select>
+      <div class="chip active">YTD 2026</div>
+      <div class="chip">As of <b>Jun 2026</b></div>
+    </div>
+  </header>
+
+  <!-- headline takeaway -->
+  <div class="insight">
+    <div>
+      <div class="lead">รายได้ <b>฿1.12B</b> <b class="good">+32.9% YoY</b> · ทำได้ <b>96%</b> ของเป้า YTD —
+        ทิศทางแข็งแรง แต่ <b class="bad">2 ภูมิภาคและ 1 รุ่น</b> ยังต่ำกว่าแผน ควรเร่งก่อนปิดไตรมาส</div>
+      <div class="meta">north-star: Revenue · เทียบเป้า + งวดก่อนหน้า · ปรับ assumption ได้เมื่อมีข้อมูลจริง</div>
+    </div>
+  </div>
+
+  <!-- essential KPIs -->
+  <section class="kpis" id="kpis"></section>
+
+  <!-- hero + where to act -->
+  <div class="row c-21">
+    <div class="card hero">
+      <div class="chart-head"><h3><span class="dot"></span>Revenue vs Target — monthly</h3></div>
+      <div class="tk" id="takeaway">—</div>
+      <div class="canvas-box"><canvas id="hero"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="chart-head"><h3><span class="dot" style="background:var(--neg)"></span>Where to act</h3></div>
+      <div class="attn" id="attn"></div>
+    </div>
+  </div>
+
+  <!-- movers + pace -->
+  <div class="row c-21">
+    <div class="card">
+      <div class="chart-head"><h3><span class="dot"></span>Top movers (YoY contribution)</h3></div>
+      <div class="canvas-box sm"><canvas id="movers"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="chart-head"><h3><span class="dot"></span>Pipeline &amp; coverage</h3></div>
+      <div class="rail" id="rail"></div>
+    </div>
+  </div>
+
+  <footer>Executive Brief · _design-system · เน้น signal ไม่ใช่ทุกตัวเลข · 1 hero chart + insight + action</footer>
+</div>
+
+<script>
+const f = DS.fmt;
+const months = ["Jan","Feb","Mar","Apr","May","Jun"];
+const revM = [101,104,138,118,124,164].map(v=>v*1e6);   // actual revenue (฿)
+const tgtM = [108,112,140,124,128,150].map(v=>v*1e6);   // target
+const sparkRev = [88,92,101,104,138,164];
+const sparkUnit = [792,820,910,880,925,1009];
+
+// ---------- KPIs (with sparkline) ----------
+const kpis = [
+  {lab:"Revenue (YTD)", val:"฿1.12B", d:"+32.9%", up:true, sub:"vs ฿840M LY", s:sparkRev},
+  {lab:"Units Sold (YTD)", val:"1,009", d:"+32.9%", up:true, sub:"vs 759 LY", s:sparkUnit},
+  {lab:"Target Achievement", val:"96%", sub:"1,009 / 1,046 units", bar:96},
+  {lab:"Avg Selling Price", val:"฿1.11M", d:"+0.4%", up:true, sub:"per unit", s:[1.08,1.09,1.10,1.10,1.11,1.11]},
+];
+document.getElementById("kpis").innerHTML = kpis.map((k,i)=>`
+  <div class="card kpi2"><span class="accent"></span>
+    <div class="lab">${k.lab}</div>
+    <div class="val">${k.val}</div>
+    <div class="row">
+      <span class="sub">${k.d?`<span class="delta ${k.up?'up':'down'}">${k.d} YoY</span> `:``}${k.sub}</span>
+      ${k.s?`<canvas class="spark" id="sp${i}"></canvas>`:``}
+    </div>
+    ${k.bar!==undefined?`<div class="bar" style="margin-top:12px"><i style="width:${k.bar}%"></i></div>`:``}
+  </div>`).join("");
+
+kpis.forEach((k,i)=>{ if(k.s) DS.add("sp"+i, el => new Chart(el,{type:"line",
+  data:{labels:k.s.map((_,j)=>j),datasets:[{data:k.s,borderColor:DS.C('accent'),borderWidth:2,
+    tension:.4,pointRadius:0,fill:true,backgroundColor:DS.cssVar('--accent-soft')}]},
+  options:{maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{enabled:false}},
+    scales:{x:{display:false},y:{display:false}}}})); });
+
+// ---------- hero: actual vs target ----------
+DS.add("hero", el => new Chart(el,{data:{labels:months,datasets:[
+  {type:"bar",label:"Actual",data:revM,backgroundColor:DS.C('accent'),borderRadius:5,barPercentage:.62,order:2},
+  {type:"line",label:"Target",data:tgtM,borderColor:DS.C('c3'),borderDash:[6,4],borderWidth:2,pointRadius:0,order:1},
+]},options:(()=>{const o=DS.baseOpts({legend:true,curMoney:true});
+  o.plugins.tooltip.callbacks={label:c=>c.dataset.label+": "+DS.fmt.abbr(c.parsed.y,'฿')};return o;})()}));
+
+// ---------- where to act ----------
+const attn = [
+  {nm:"South region", att:88, why:"ต่ำกว่าเป้า 12% — เร่ง dealer 2 แห่งที่ค้าง booking"},
+  {nm:"West region", att:95, why:"ต่ำกว่าเป้า 5% — coverage ยังบาง"},
+  {nm:"Han (model)", att:78, why:"ยอดช้า — stock ค้าง 6 สัปดาห์"},
+];
+function fillAttn(){
+  const col = a => a>=100?DS.C('pos'):a>=95?DS.C('c3'):DS.C('neg');
+  document.getElementById("attn").innerHTML = attn.map(a=>`
+    <div class="item">
+      <span class="nm">${a.nm}</span>
+      <span class="att" style="color:${col(a.att)}">${a.att}% <small style="color:var(--muted);font-weight:500">of target</small></span>
+      <div class="track"><i style="width:${Math.min(a.att,100)}%;background:${col(a.att)}"></i></div>
+      <div class="why">${a.why}</div>
+    </div>`).join("");
+}
+
+// ---------- top movers (diverging) ----------
+const movers = [["Dolphin",18],["Central",12],["Atto 3",9],["West",-5],["South",-12]];
+DS.add("movers", el => new Chart(el,{type:"bar",data:{labels:movers.map(m=>m[0]),
+  datasets:[{data:movers.map(m=>m[1]),backgroundColor:movers.map(m=>m[1]>=0?DS.C('pos'):DS.C('neg')),borderRadius:4}]},
+  options:(()=>{const o=DS.baseOpts({horizontal:true});o.scales.x.ticks.callback=v=>(v>0?"+":"")+v+"%";
+    o.plugins.tooltip.callbacks={label:c=>(c.parsed.x>0?"+":"")+c.parsed.x+"% YoY"};return o;})()}));
+
+// ---------- pipeline & coverage rail ----------
+function fillRail(){
+  const rows=[["Backlog (booked)","306"],["Avg selling price","฿1.11M"],["Region coverage","73%"],["Forecast next Q","฿1.34B"]];
+  document.getElementById("rail").innerHTML = rows.map(([k,v])=>`<div class="r"><span class="k">${k}</span><span class="v">${v}</span></div>`).join("");
+}
+
+const _r = DS.renderAll; DS.renderAll = function(){
+  _r(); fillAttn(); fillRail();
+  document.getElementById("takeaway").textContent = "ทำได้ 96% ของเป้า · Dec แรงสุด · ช่องว่างกับเป้ากระจุกที่ภาคใต้และรุ่น Han";
+};
+const qSkin = new URLSearchParams(location.search).get("skin");
+if(qSkin){ document.body.className="skin-"+qSkin; const s=document.getElementById("skin"); if(s) s.value=qSkin; }
+DS.renderAll();
+</script>
+</body>
+</html>

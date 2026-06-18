@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Template · Geo / Distribution</title>
+<link rel="stylesheet" href="../../_design-system/tokens.css" />
+<link rel="stylesheet" href="../../_design-system/components.css" />
+<link rel="stylesheet" href="../../_design-system/skins/skins.css" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="../../_design-system/charts.js"></script>
+</head>
+<body class="skin-byd-red">
+<div class="wrap">
+  <header class="ds-header">
+    <div class="brand">
+      <div class="logo"><span class="mark">GEO</span><span class="tag">DISTRIBUTION</span></div>
+      <div>
+        <h1>Geo / Distribution <span class="tag-pill">Template</span></h1>
+        <p>Archetype 05 · compare — coverage, regional distribution, location performance</p>
+      </div>
+    </div>
+    <div class="ctx">
+      <select class="skin-select" id="skin" onchange="DS.setSkin(this.value)">
+        <option value="byd-red">Skin: BYD Red</option>
+        <option value="finance-dark">Skin: Finance Dark</option>
+        <option value="saas-violet">Skin: SaaS Violet</option>
+        <option value="luxury-gold">Skin: Luxury Gold</option>
+        <option value="command-center">Skin: Command Center</option>
+      </select>
+      <div class="chip active">YTD</div>
+      <div class="chip">As of <b>Jun 2026</b></div>
+    </div>
+  </header>
+
+  <section class="kpis" id="kpis"></section>
+
+  <!-- Power BI: Bubble Map (Azure / Filled Map with size) | left ; Clustered bar (native bar) | right -->
+  <div class="row c-21">
+    <div class="card chart-card">
+      <div class="chart-head"><h3><span class="dot"></span>Sales by Location (bubble = volume)</h3></div>
+      <!-- Power BI native: Bubble Map (Map visual, Latitude/Longitude + Size = Sales) -->
+      <div class="canvas-box lg"><canvas id="geoBubble"></canvas></div>
+      <div class="legend" id="geoLegend"></div>
+    </div>
+    <div class="card chart-card">
+      <div class="chart-head"><h3><span class="dot"></span>Sales by Region</h3></div>
+      <!-- Power BI native: Clustered bar chart (Axis = Region, Value = Sales) -->
+      <div class="canvas-box lg"><canvas id="regionBar"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Power BI: Stacked column (native) | Table visual with data bar conditional formatting -->
+  <div class="row c-21">
+    <div class="card chart-card">
+      <div class="chart-head"><h3><span class="dot"></span>Category mix by Region</h3></div>
+      <!-- Power BI native: Stacked column chart (Axis = Region, Legend = Category, Value = Sales) -->
+      <div class="canvas-box"><canvas id="catMix"></canvas></div>
+      <div class="legend" id="catLegend"></div>
+    </div>
+    <div class="card">
+      <div class="chart-head"><h3><span class="dot"></span>Province Performance</h3></div>
+      <!-- Power BI native: Table / Matrix visual (Sales column = Data bars conditional formatting) -->
+      <table id="prov"><thead><tr><th>Province</th><th>Region</th><th class="num">Locations</th><th class="num">Sales</th><th class="num">Coverage</th></tr></thead><tbody></tbody></table>
+    </div>
+  </div>
+  <footer>Template · _design-system tokens + components + skins · inline demo data</footer>
+</div>
+
+<script>
+// ---------- demo data (Thailand retail / distribution, swappable) ----------
+// cities: [name, x(lng-ish 0..100), y(lat-ish 0..100), sales(฿)]
+const cities = [
+  ["Bangkok",        50, 38, 412e6],
+  ["Nonthaburi",     47, 41, 188e6],
+  ["Chonburi",       58, 36, 164e6],
+  ["Chiang Mai",     34, 82, 142e6],
+  ["Khon Kaen",      62, 62, 121e6],
+  ["Nakhon Ratchasima",60,52, 138e6],
+  ["Phuket",         30, 12, 109e6],
+  ["Hat Yai",        42,  6,  96e6],
+  ["Rayong",         60, 33,  88e6],
+  ["Udon Thani",     63, 70,  74e6],
+];
+
+// region: [name, sales(฿), locations, provincesCovered, provincesTotal]
+const regionRows = [
+  ["Central",   742e6, 41, 19, 22],
+  ["East",      390e6, 18,  6,  7],
+  ["Northeast", 388e6, 24, 14, 20],
+  ["North",     298e6, 17, 11, 17],
+  ["South",     286e6, 15,  9, 14],
+  ["West",       96e6,  6,  3,  5],
+];
+
+// category mix per region (aligned to regionRows order) — [EV, Service, Parts, Accessories]
+const catLabels = ["EV", "Service", "Parts", "Accessories"];
+const catData = {
+  EV:          [430e6, 210e6, 205e6, 150e6, 142e6, 48e6],
+  Service:     [150e6,  90e6,  92e6,  78e6,  74e6, 24e6],
+  Parts:       [102e6,  58e6,  61e6,  46e6,  44e6, 16e6],
+  Accessories: [ 60e6,  32e6,  30e6,  24e6,  26e6,  8e6],
+};
+
+// province table: [province, region, locations, sales(฿), coveragePct]
+const provinceRows = [
+  ["Bangkok",            "Central",   18, 412e6, 96],
+  ["Nonthaburi",         "Central",    7, 188e6, 88],
+  ["Chonburi",           "East",       8, 164e6, 81],
+  ["Nakhon Ratchasima",  "Northeast",  6, 138e6, 64],
+  ["Chiang Mai",         "North",      7, 142e6, 72],
+  ["Khon Kaen",          "Northeast",  5, 121e6, 58],
+  ["Phuket",             "South",      4, 109e6, 77],
+  ["Songkhla",           "South",      5,  96e6, 61],
+  ["Rayong",             "East",       4,  88e6, 69],
+  ["Udon Thani",         "Northeast",  4,  74e6, 47],
+];
+
+const sum = a => a.reduce((x,y)=>x+y,0);
+const f = DS.fmt;
+
+// ---------- KPIs ----------
+const totalLocations = sum(regionRows.map(r=>r[2]));
+const provCovered = sum(regionRows.map(r=>r[3]));
+const provTotal   = sum(regionRows.map(r=>r[4]));
+const coveragePct = provCovered/provTotal*100;
+const totalSales  = sum(regionRows.map(r=>r[1]));
+const topRegion   = [...regionRows].sort((a,b)=>b[1]-a[1])[0];
+const avgPerLoc   = totalSales/totalLocations;
+const underserved = provTotal - provCovered;
+
+const kpis=[
+  {t:"Active Locations", v:f.num(totalLocations), sub:`across ${regionRows.length} regions`},
+  {t:"Coverage", v:Math.round(coveragePct)+"%", bar:coveragePct, sub:`${f.num(provCovered)} / ${f.num(provTotal)} provinces`},
+  {t:"Top Region (sales)", v:topRegion[0], d:8.4, sub:`${f.abbr(topRegion[1],'฿')} YTD`},
+  {t:"Avg Sales / Location", v:f.abbr(avgPerLoc,'฿'), sub:"per active site"},
+  {t:"Underserved Provinces", v:f.num(underserved), sub:"no active location"},
+];
+document.getElementById("kpis").innerHTML = kpis.map(k=>`
+  <div class="card kpi"><span class="accent"></span><h3>${k.t}</h3>
+  <div class="val">${k.v}</div>
+  ${k.bar!==undefined?`<div class="bar"><i style="width:${k.bar}%"></i></div>`:``}
+  <div class="sub">${k.d!==undefined?`<span class="delta ${k.d>=0?'up':'down'}">${f.pct(k.d)} YoY</span>`:``}${k.sub}</div></div>`).join("");
+
+// ---------- charts (read DS.colors()/DS.C() at build time -> reskin recolors) ----------
+
+// 1) Bubble chart ~ geographic scatter, bubble size = sales -> Power BI Bubble Map
+DS.add("geoBubble", el => {
+  const maxSales = Math.max(...cities.map(c=>c[3]));
+  const c1 = DS.C('c1'), c2 = DS.C('c2');
+  return new Chart(el, {
+    type: "bubble",
+    data: {
+      datasets: [{
+        label: "Location",
+        data: cities.map(c => ({ x: c[1], y: c[2], r: 6 + Math.sqrt(c[3]/maxSales)*26, _name: c[0], _sales: c[3] })),
+        backgroundColor: cities.map((c,i) => (i%2 ? c2 : c1) + 'cc'),
+        borderColor: DS.cssVar('--card'),
+        borderWidth: 1.5,
+      }]
+    },
+    options: {
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { ...DS.tooltip(), callbacks: {
+          label: ctx => `${ctx.raw._name}: ${DS.fmt.abbr(ctx.raw._sales,'฿')}`
+        } },
+      },
+      scales: {
+        x: { min: 20, max: 70, grid: { color: DS.cssVar('--grid') }, ticks: { display: false } },
+        y: { min: 0,  max: 95, grid: { color: DS.cssVar('--grid') }, ticks: { display: false } },
+      },
+    },
+  });
+});
+
+// 2) Sales by Region (ranked horizontal clustered bar) -> Power BI Clustered bar
+DS.add("regionBar", el => {
+  const rows = [...regionRows].sort((a,b)=>b[1]-a[1]);
+  const opt = DS.baseOpts({ horizontal:true });
+  opt.scales.x.ticks.callback = v => DS.fmt.abbr(v,'฿'); // value on x when horizontal
+  opt.plugins.legend.display = false;
+  opt.plugins.tooltip.callbacks = { label: ctx => DS.fmt.abbr(ctx.parsed.x,'฿') };
+  return new Chart(el, {
+    type: "bar",
+    data: { labels: rows.map(r=>r[0]), datasets: [{
+      label: "Sales", data: rows.map(r=>r[1]),
+      backgroundColor: rows.map((_,i)=>DS.colors()[Math.min(i,7)]), borderRadius: 5,
+    }]},
+    options: opt,
+  });
+});
+
+// 3) Category mix by Region (stacked bar) -> Power BI Stacked column
+DS.add("catMix", el => {
+  const cols = [DS.C('c1'), DS.C('c2'), DS.C('c3'), DS.C('c5')];
+  return new Chart(el, {
+    type: "bar",
+    data: { labels: regionRows.map(r=>r[0]), datasets: catLabels.map((cat,i)=>({
+      label: cat, data: catData[cat], backgroundColor: cols[i], borderRadius: 3,
+    }))},
+    options: { ...DS.baseOpts({ stacked:true, curMoney:true }),
+      plugins: { legend:{display:false}, tooltip:{ ...DS.tooltip(), callbacks:{
+        label: ctx => `${ctx.dataset.label}: ${DS.fmt.abbr(ctx.parsed.y,'฿')}` } } } },
+  });
+});
+
+// ---------- legends + table ----------
+function legends(){
+  const maxSales = Math.max(...cities.map(c=>c[3]));
+  document.getElementById("geoLegend").innerHTML =
+    `<span><span class="dot" style="background:${DS.C('c1')}"></span>City</span>`+
+    `<span>bubble size = sales · max <b>${DS.fmt.abbr(maxSales,'฿')}</b></span>`;
+  const cols = [DS.C('c1'), DS.C('c2'), DS.C('c3'), DS.C('c5')];
+  document.getElementById("catLegend").innerHTML = catLabels.map((c,i)=>
+    `<span><span class="dot" style="background:${cols[i]}"></span>${c}</span>`).join("");
+}
+
+const maxProvSales = Math.max(...provinceRows.map(r=>r[3]));
+document.querySelector("#prov tbody").innerHTML = provinceRows.map(([p,reg,loc,s,cov])=>`
+  <tr><td><span class="rankbar" style="width:${s/maxProvSales*42}px"></span>${p}</td>
+  <td>${reg}</td>
+  <td class="num">${f.num(loc)}</td>
+  <td class="num">${f.abbr(s,'฿')}</td>
+  <td class="num">${f.pctPlain(cov)}</td></tr>`).join("");
+
+// re-render legends on every skin switch
+const _render = DS.renderAll;
+DS.renderAll = function(){ _render(); legends(); };
+
+// ?skin=... support
+const qSkin = new URLSearchParams(location.search).get("skin");
+if(qSkin){ document.body.className="skin-"+qSkin; const s=document.getElementById("skin"); if(s) s.value=qSkin; }
+DS.renderAll();
+</script>
+</body>
+</html>

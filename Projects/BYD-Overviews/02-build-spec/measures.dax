@@ -1,0 +1,73 @@
+// ============================================================
+// BYD Overviews — DAX measures
+// นิยามตรงกับที่ web mockup คำนวณ -> ตัวเลขต้องตรงกัน (ใช้ validate)
+// "Sold" = order ที่ไม่ถูกยกเลิก (Delivered + Booked) ; revenue ของ Cancelled = 0 อยู่แล้ว
+// ============================================================
+
+// ---------- Date table (สร้างเป็น Calculated Table) ----------
+Date =
+ADDCOLUMNS (
+    CALENDAR ( DATE(2025,1,1), DATE(2026,12,31) ),
+    "Year",           YEAR ( [Date] ),
+    "Quarter",        "Q" & QUARTER ( [Date] ),
+    "MonthNo",        MONTH ( [Date] ),
+    "MonthName",      FORMAT ( [Date], "mmm" ),
+    "YearMonth",      FORMAT ( [Date], "YYYY-MM" ),
+    "MonthYearLabel", FORMAT ( [Date], "mmm ''yy" ),
+    "IsCurrentYear",  YEAR ( [Date] ) = 2026
+)
+
+// ---------- Core measures ----------
+Units Sold =
+CALCULATE ( COUNTROWS ( Orders ), Orders[status] <> "Cancelled" )
+
+Revenue =
+SUM ( Orders[revenue] )                 // Cancelled = 0 อยู่แล้ว ไม่ต้อง filter
+
+Delivered Units =
+CALCULATE ( COUNTROWS ( Orders ), Orders[status] = "Delivered" )
+
+Backlog Units =                          // order ที่จองแล้วยังไม่ส่งมอบ
+CALCULATE ( COUNTROWS ( Orders ), Orders[status] = "Booked" )
+
+Avg Selling Price =
+DIVIDE ( [Revenue], [Units Sold] )
+
+// ---------- Target & achievement ----------
+Target Units =
+SUM ( Targets[target_units] )
+
+Target Achievement % =
+DIVIDE ( [Units Sold], [Target Units] )  // format เป็น %
+
+// ---------- Time intelligence (YoY เทียบช่วงเดียวกัน) ----------
+Units Sold LY =
+CALCULATE ( [Units Sold], SAMEPERIODLASTYEAR ( 'Date'[Date] ) )
+
+Revenue LY =
+CALCULATE ( [Revenue], SAMEPERIODLASTYEAR ( 'Date'[Date] ) )
+
+Units YoY % =
+DIVIDE ( [Units Sold] - [Units Sold LY], [Units Sold LY] )
+
+Revenue YoY % =
+DIVIDE ( [Revenue] - [Revenue LY], [Revenue LY] )
+
+// ---------- KPI helper: สีสำหรับ conditional formatting ----------
+Achievement Color =
+SWITCH (
+    TRUE (),
+    [Target Achievement %] >= 1,    "#27C281",   // เกินเป้า เขียว
+    [Target Achievement %] >= 0.9,  "#F2B53C",   // ใกล้เป้า เหลือง
+    "#F0556B"                                     // ต่ำกว่าเป้า แดง
+)
+
+// ============================================================
+// ค่าที่ควรได้เมื่อ filter = YTD 2026 (Jan-Jun) — ใช้ validate กับ web mockup:
+//   Units Sold           = 1,009
+//   Revenue              = ฿1.12B
+//   Target Units         = 1,046   -> Achievement 96%
+//   Units YoY %          = +32.9%  (LY 759)
+//   Avg Selling Price    = ฿1,109,055
+//   Delivered / Backlog  = 703 / 306
+// ============================================================

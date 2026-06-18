@@ -1,0 +1,37 @@
+{
+  "name": "DS · Finance Dark",
+  "_skin": "finance-dark",
+  "dataColors": [
+    "#27C2A0", "#3D7DF6", "#F2B53C", "#9C6BFF", "#56D0E0",
+    "#F0556B", "#8A98B0", "#E0668F"
+  ],
+  "background": "#141A26",
+  "secondaryBackground": "#0C1018",
+  "foreground": "#EAF0FA",
+  "foregroundNeutralSecondary": "#8A98B0",
+  "tableAccent": "#27C2A0",
+  "good": "#27C281",
+  "neutral": "#8A98B0",
+  "bad": "#F0556B",
+  "maximum": "#27C2A0",
+  "minimum": "#0C1018",
+  "textClasses": {
+    "title":   { "fontFace": "Segoe UI Semibold", "fontSize": 13, "color": "#EAF0FA" },
+    "header":  { "fontFace": "Segoe UI Semibold", "fontSize": 11, "color": "#8A98B0" },
+    "label":   { "fontFace": "Segoe UI", "fontSize": 10, "color": "#8A98B0" },
+    "callout": { "fontFace": "Segoe UI", "fontSize": 28, "color": "#EAF0FA" }
+  },
+  "visualStyles": {
+    "*": {
+      "*": {
+        "background": [{ "show": true, "color": { "solid": { "color": "#141A26" } }, "transparency": 0 }],
+        "border":     [{ "show": true, "color": { "solid": { "color": "#243044" } }, "radius": 12 }],
+        "visualHeader": [{ "show": true, "background": { "solid": { "color": "#141A26" } }, "foreground": { "solid": { "color": "#8A98B0" } } }],
+        "title": [{ "show": true, "fontColor": { "solid": { "color": "#EAF0FA" } }, "fontSize": 12, "fontFamily": "Segoe UI Semibold", "alignment": "left" }]
+      }
+    },
+    "page": {
+      "*": { "background": [{ "color": { "solid": { "color": "#0C1018" } }, "transparency": 0 }] }
+    }
+  }
+}

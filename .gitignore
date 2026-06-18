@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.pyc
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets / local env
+.env
+*.local
+
+# Local AI / editor tooling (not part of the product)
+.claude/
+.sixth/
+
+# Moodboard runtime data (user uploads + state) — keep the folder, ignore contents
+_moodboard/img/*
+!_moodboard/img/.gitkeep
+_moodboard/meta.json

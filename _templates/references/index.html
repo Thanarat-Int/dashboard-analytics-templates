@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Reference Links — Data Analytics & Dashboard Design</title>
+<link rel="stylesheet" href="../../_design-system/tokens.css" />
+<link rel="stylesheet" href="../../_design-system/components.css" />
+<link rel="stylesheet" href="../../_design-system/skins/skins.css" />
+<style>
+  .sec{font-size:12px;font-weight:800;letter-spacing:1.2px;color:var(--accent);text-transform:uppercase;
+    margin:22px 0 12px;display:flex;align-items:center;gap:10px}
+  .sec::after{content:"";flex:1;height:1px;background:var(--line)}
+  .links{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--gap)}
+  @media(max-width:900px){.links{grid-template-columns:1fr}}
+  .links a{text-decoration:none;color:inherit}
+  .links .card{transition:transform .12s,box-shadow .12s;cursor:pointer}
+  .links .card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(20,24,31,.12)}
+  .links h2{font-size:15px;margin:0 0 4px;color:var(--ink)}
+  .links .host{font-size:11px;color:var(--accent);font-weight:700;letter-spacing:.3px}
+  .links p{font-size:12.5px;color:var(--muted);line-height:1.5;margin-top:6px}
+  .note{background:var(--accent-soft);border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px 18px;font-size:13px;color:var(--ink);line-height:1.6}
+</style>
+</head>
+<body class="skin-byd-red">
+<div class="wrap">
+  <header class="ds-header">
+    <div class="brand">
+      <div class="logo"><span class="mark">REF</span><span class="tag">INSPIRATION</span></div>
+      <div>
+        <h1>Reference Links — Dashboard &amp; Data Viz <span class="tag-pill">Index</span></h1>
+        <p>แหล่งระดับโลกไว้ดูเป็นแรงบันดาลใจ + เรียนวิธีเลือกกราฟ — ลิงก์ออก ไม่เก็บภาพคนอื่น</p>
+      </div>
+    </div>
+    <div class="ctx"><a class="chip ds-home" href="/_templates/">← Template Gallery</a></div>
+  </header>
+
+  <div class="note">
+    <b>วิธีใช้ index นี้:</b> ใช้ "ดู/เรียน" — ดูว่าโจทย์แบบเดียวกันคนเก่ง ๆ จัด layout/สี/visual ยังไง แล้วเอาหลักการมาประกอบใน
+    <b>คลัง template ของเราเอง</b> (`/_templates/`). ⚠️ อย่าก๊อป screenshot/ไฟล์ของคนอื่นมาเก็บในโปรเจกต์ (ลิขสิทธิ์ของเจ้าของงาน) —
+    ที่ดาวน์โหลด workbook ได้ (เช่น Tableau Public) ให้ดาวน์โหลดเพื่อ "ผ่าดูวิธีทำ" ส่วนตัว ไม่ใช่เผยแพร่ซ้ำ
+  </div>
+
+  <div class="sec">1 · Inspiration galleries (ดู dashboard จริงเป็นพัน)</div>
+  <div class="links">
+    <a href="https://public.tableau.com/app/discover" target="_blank"><div class="card">
+      <div class="host">public.tableau.com</div><h2>Tableau Public — Gallery</h2>
+      <p>คลัง dashboard interactive ใหญ่สุดในโลก หลายอันโหลด workbook มาผ่าดูวิธีทำได้ — ดีที่สุดสำหรับ reverse-engineer</p></div></a>
+    <a href="https://community.fabric.microsoft.com/t5/Data-Stories-Gallery/bd-p/DataStoriesGallery" target="_blank"><div class="card">
+      <div class="host">community.fabric.microsoft.com</div><h2>Power BI — Data Stories Gallery</h2>
+      <p>รายงาน Power BI จากชุมชน ครบทุกอุตสาหกรรม — ใกล้เคียงเครื่องมือที่คุณใช้จริงที่สุด</p></div></a>
+    <a href="https://lookerstudio.google.com/gallery" target="_blank"><div class="card">
+      <div class="host">lookerstudio.google.com</div><h2>Looker Studio — Gallery</h2>
+      <p>template + งานชุมชน หลายอันกด "Use template" แล้วต่อ data ของตัวเองได้เลย</p></div></a>
+    <a href="https://www.informationisbeautifulawards.com/" target="_blank"><div class="card">
+      <div class="host">informationisbeautifulawards.com</div><h2>Information is Beautiful Awards</h2>
+      <p>งาน data viz ระดับรางวัล — ดูไอเดียการเล่าเรื่องด้วยข้อมูลแบบสุดทาง (ส่วนใหญ่เป็นงาน editorial)</p></div></a>
+  </div>
+
+  <div class="sec">2 · Chart choice & craft (เลือกกราฟให้ถูก + หลักการ)</div>
+  <div class="links">
+    <a href="https://www.data-to-viz.com/" target="_blank"><div class="card">
+      <div class="host">data-to-viz.com</div><h2>From Data to Viz</h2>
+      <p>flowchart: ข้อมูลแบบนี้ → ควรใช้กราฟอะไร + กับดักที่พบบ่อย — คู่มือเลือก chart ที่ดีที่สุด</p></div></a>
+    <a href="https://github.com/Financial-Times/chart-doctor/tree/main/visual-vocabulary" target="_blank"><div class="card">
+      <div class="host">github.com/Financial-Times</div><h2>FT Visual Vocabulary</h2>
+      <p>โปสเตอร์จับคู่ "สิ่งที่อยากสื่อ" (เทียบ/แนวโน้ม/สัดส่วน/การกระจาย) → ชนิดกราฟ — มาตรฐานวงการ</p></div></a>
+    <a href="https://blog.datawrapper.de/" target="_blank"><div class="card">
+      <div class="host">blog.datawrapper.de</div><h2>Datawrapper Blog</h2>
+      <p>บทความสอนทำกราฟให้ชัด/ไม่หลอกตา ระดับลึกแต่อ่านง่าย — เน้นปฏิบัติจริง</p></div></a>
+    <a href="https://flowingdata.com/" target="_blank"><div class="card">
+      <div class="host">flowingdata.com</div><h2>FlowingData</h2>
+      <p>เคสและเทคนิค data viz หลากหลาย — ดีสำหรับเปิดมุมมองวิธีนำเสนอใหม่ ๆ</p></div></a>
+  </div>
+
+  <div class="sec">3 · Color & accessibility (จานสีที่อ่านออก)</div>
+  <div class="links">
+    <a href="https://colorbrewer2.org/" target="_blank"><div class="card">
+      <div class="host">colorbrewer2.org</div><h2>ColorBrewer</h2>
+      <p>จานสีสำหรับแผนที่/ข้อมูล แยก sequential/diverging/qualitative + เช็ค colorblind-safe</p></div></a>
+    <a href="https://projects.susielu.com/viz-palette" target="_blank"><div class="card">
+      <div class="host">projects.susielu.com</div><h2>Viz Palette</h2>
+      <p>ทดสอบจานสีบนกราฟจริง + จำลองตาบอดสี — ใช้ตอนออกแบบ --c1..--c8 ของ skin ใหม่</p></div></a>
+    <a href="https://coolors.co/" target="_blank"><div class="card">
+      <div class="host">coolors.co</div><h2>Coolors</h2>
+      <p>สร้าง/ลองจานสีเร็ว ๆ — เอา hex มาทำ skin ใหม่ใน skins.css ได้ทันที</p></div></a>
+    <a href="https://community.fabric.microsoft.com/t5/Themes-Gallery/bd-p/ThemesGallery" target="_blank"><div class="card">
+      <div class="host">community.fabric.microsoft.com</div><h2>Power BI — Themes Gallery</h2>
+      <p>theme.json สำเร็จรูปจากชุมชน — ดูโครงสร้างไฟล์เทียบกับที่เราสร้างใน skins/powerbi/</p></div></a>
+  </div>
+
+  <footer>Index นี้เก็บแค่ "ลิงก์ + โน้ต" · งานจริงสร้างในคลังของเรา → <a href="../" style="color:var(--accent)">/_templates/</a></footer>
+</div>
+</body>
+</html>

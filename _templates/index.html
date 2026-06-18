@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dashboard Template Gallery</title>
+<link rel="stylesheet" href="../_design-system/tokens.css" />
+<link rel="stylesheet" href="../_design-system/components.css" />
+<link rel="stylesheet" href="../_design-system/skins/skins.css" />
+<style>
+  .arch{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--gap)}
+  .arch a{text-decoration:none;color:inherit}
+  .arch .card{transition:transform .12s,box-shadow .12s;cursor:pointer;min-height:140px}
+  .arch .card:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(20,24,31,.12)}
+  .arch .num{font-size:12px;font-weight:800;color:var(--accent);letter-spacing:1px}
+  .arch h2{font-size:18px;margin:6px 0 6px;color:var(--ink)}
+  .arch p{font-size:13px;color:var(--muted);line-height:1.55}
+  .arch .meta{margin-top:10px;font-size:11.5px;color:var(--faint)}
+  .skins{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  .sw{width:22px;height:22px;border-radius:6px;border:1px solid var(--line)}
+</style>
+</head>
+<body class="skin-byd-red">
+<div class="wrap">
+  <header class="ds-header">
+    <div class="brand">
+      <div class="logo"><span class="mark">DS</span><span class="tag">DESIGN SYSTEM</span></div>
+      <div>
+        <h1>Dashboard Template Gallery</h1>
+        <p>Archetype × Skin × Data — เลือกโครง, สลับโทน, เสียบข้อมูล</p>
+      </div>
+    </div>
+    <div class="ctx"><a class="chip ds-home" href="/">← ⌂ หน้าหลัก</a><div class="chip active">13 archetypes</div><div class="chip">5 skins</div></div>
+  </header>
+
+  <div class="arch">
+    <a href="01-executive-overview/"><div class="card">
+      <div class="num">ARCHETYPE 01</div><h2>Executive Overview</h2>
+      <p>Monitor ภาพรวม — KPI + trend vs target + breakdown ตามรุ่น/ภูมิภาค + leaderboard. ใช้ได้ทุก domain (sales, finance, ops)</p>
+      <div class="meta">Decision: monitor · มี live skin switcher</div>
+    </div></a>
+    <a href="02-operational-monitor/"><div class="card">
+      <div class="num">ARCHETYPE 02</div><h2>Operational Monitor</h2>
+      <p>Real-time command room — SLA, throughput, incidents by severity, service utilization, live alert feed</p>
+      <div class="meta">Decision: monitor real-time · default Command Center</div>
+    </div></a>
+    <a href="03-financial-pnl/"><div class="card">
+      <div class="num">ARCHETYPE 03</div><h2>Financial P&amp;L</h2>
+      <p>Explain งบ — waterfall (Revenue → Net), opex mix, margin trend, P&amp;L statement Actual vs Budget</p>
+      <div class="meta">Decision: explain/diagnose · default Finance Dark</div>
+    </div></a>
+    <a href="04-funnel-conversion/"><div class="card">
+      <div class="num">ARCHETYPE 04</div><h2>Funnel &amp; Conversion</h2>
+      <p>Diagnose growth — acquisition funnel, signup→paid ตาม channel, cohort retention, stage drop-off</p>
+      <div class="meta">Decision: diagnose · default SaaS Violet</div>
+    </div></a>
+    <a href="05-geo-distribution/"><div class="card">
+      <div class="num">ARCHETYPE 05</div><h2>Geo / Distribution</h2>
+      <p>Compare เชิงพื้นที่ — bubble map ตามเมือง, sales by region, category mix, province performance</p>
+      <div class="meta">Decision: compare · default BYD Red</div>
+    </div></a>
+    <a href="06-marketing-campaign/"><div class="card">
+      <div class="num">ARCHETYPE 06</div><h2>Marketing Performance</h2>
+      <p>Diagnose แคมเปญ — spend vs revenue, ROAS by campaign, spend/leads trend, campaign detail</p>
+      <div class="meta">Decision: diagnose · default SaaS Violet</div>
+    </div></a>
+    <a href="07-hr-workforce/"><div class="card">
+      <div class="num">ARCHETYPE 07</div><h2>Workforce Analytics</h2>
+      <p>Monitor คน — headcount & attrition trend, attrition by dept, workforce mix, hiring pipeline</p>
+      <div class="meta">Decision: monitor · default Finance Dark</div>
+    </div></a>
+    <a href="08-inventory-supply/"><div class="card">
+      <div class="num">ARCHETYPE 08</div><h2>Inventory &amp; Supply</h2>
+      <p>Monitor สต็อก — stock value by category, inventory aging, turnover trend, stockout risk</p>
+      <div class="meta">Decision: monitor · default Command Center</div>
+    </div></a>
+    <a href="09-aftersales-service/"><div class="card">
+      <div class="num">ARCHETYPE 09</div><h2>After-sales &amp; Service</h2>
+      <p>Monitor ศูนย์บริการ — service volume×CSAT, warranty mix, job categories, dealer service scorecard</p>
+      <div class="meta">Decision: monitor · default BYD Red · ตรงธุรกิจ auto</div>
+    </div></a>
+    <a href="10-customer-lifecycle/"><div class="card">
+      <div class="num">ARCHETYPE 10</div><h2>Customer Lifecycle / CRM</h2>
+      <p>Diagnose ลูกค้า — ownership lifecycle, RFM segmentation, cohort retention, churn risk</p>
+      <div class="meta">Decision: diagnose · default SaaS Violet</div>
+    </div></a>
+    <a href="11-forecast-planning/"><div class="card">
+      <div class="num">ARCHETYPE 11</div><h2>Forecast &amp; Planning</h2>
+      <p>Forecast — projection + confidence band, plan vs actual, variance bridge, scenarios</p>
+      <div class="meta">Decision: forecast · default Finance Dark</div>
+    </div></a>
+    <a href="12-detail-drillthrough/"><div class="card">
+      <div class="num">ARCHETYPE 12</div><h2>Detail / Drillthrough</h2>
+      <p>Detail — หน้าเจาะ entity เดียว (record-level table) ปลายทาง Power BI drillthrough</p>
+      <div class="meta">Decision: detail · default BYD Red</div>
+    </div></a>
+    <a href="13-executive-brief/"><div class="card">
+      <div class="num">ARCHETYPE 13 ★</div><h2>Executive Brief</h2>
+      <p>Board-ready — นำด้วยประโยคสรุป + KPI หลัก (sparkline) + 1 hero chart + "where to act". น้อยชิ้น ไม่รก ระดับ C-suite</p>
+      <div class="meta">Decision: present · default Finance Dark</div>
+    </div></a>
+  </div>
+
+  <div class="skins">
+    <div class="card" style="flex:1">
+      <h3><span class="dot"></span>5 skins (สลับได้ในทุก archetype)</h3>
+      <div class="skins" style="margin-top:12px">
+        <div><div class="sw" style="background:#E2231A"></div><div class="meta">BYD Red</div></div>
+        <div><div class="sw" style="background:#27C2A0"></div><div class="meta">Finance Dark</div></div>
+        <div><div class="sw" style="background:#6D5CF6"></div><div class="meta">SaaS Violet</div></div>
+        <div><div class="sw" style="background:#C9A24B"></div><div class="meta">Luxury Gold</div></div>
+        <div><div class="sw" style="background:#19E3C4"></div><div class="meta">Command Center</div></div>
+      </div>
+    </div>
+  </div>
+  <footer>เปิดผ่าน server: python -m http.server (ที่ root DEEPBI) แล้วไป /_templates/</footer>
+</div>
+</body>
+</html>

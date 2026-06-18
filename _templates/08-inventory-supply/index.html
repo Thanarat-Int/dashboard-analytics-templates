@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Template · Inventory &amp; Supply</title>
+<link rel="stylesheet" href="../../_design-system/tokens.css" />
+<link rel="stylesheet" href="../../_design-system/components.css" />
+<link rel="stylesheet" href="../../_design-system/skins/skins.css" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="../../_design-system/charts.js"></script>
+</head>
+<body class="skin-command-center">
+<div class="wrap">
+  <header class="ds-header">
+    <div class="brand">
+      <div class="logo"><span class="mark">INV</span><span class="tag">SUPPLY CHAIN</span></div>
+      <div>
+        <h1>Inventory &amp; Supply <span class="tag-pill">Template</span></h1>
+        <p>Archetype 08 · monitor — stock, turnover, aging, stockout risk</p>
+      </div>
+    </div>
+    <div class="ctx">
+      <select class="skin-select" id="skin" onchange="DS.setSkin(this.value)">
+        <option value="command-center">Skin: Command Center</option>
+        <option value="finance-dark">Skin: Finance Dark</option>
+        <option value="byd-red">Skin: BYD Red</option>
+        <option value="saas-violet">Skin: SaaS Violet</option>
+        <option value="luxury-gold">Skin: Luxury Gold</option>
+      </select>
+      <div class="chip active">LIVE</div>
+      <div class="chip">As of <b>Jun 2026</b></div>
+    </div>
+  </header>
+
+  <section class="kpis" id="kpis"></section>
+
+  <div class="row c-21">
+    <!-- Power BI: Clustered bar chart (Category on axis, Stock Value as value) -->
+    <div class="card chart-card">
+      <div class="chart-head"><h3><span class="dot"></span>Stock Value by Category</h3></div>
+      <div class="canvas-box"><canvas id="stockValue"></canvas></div>
+    </div>
+    <!-- Power BI: Stacked column chart (Category on axis, aging buckets as series) -->
+    <div class="card chart-card">
+      <div class="chart-head"><h3><span class="dot"></span>Inventory Aging by Category</h3></div>
+      <div class="canvas-box lg"><canvas id="aging"></canvas></div>
+      <div class="legend" id="agingLegend"></div>
+    </div>
+  </div>
+
+  <div class="row c-12">
+    <!-- Power BI: Line chart (Month on axis, Turnover as value) -->
+    <div class="card chart-card">
+      <div class="chart-head"><h3><span class="dot"></span>Inventory Turnover Trend (12 months)</h3></div>
+      <div class="canvas-box sm"><canvas id="turnover"></canvas></div>
+    </div>
+    <!-- Power BI: Table visual (SKU, Category, On Hand, Days of Cover, Status w/ conditional formatting) -->
+    <div class="card">
+      <div class="chart-head"><h3><span class="dot"></span>Stockout Risk</h3></div>
+      <table id="risk"><thead><tr><th>SKU</th><th>Category</th><th class="num">On Hand</th><th class="num">Days of Cover</th><th>Status</th></tr></thead><tbody></tbody></table>
+    </div>
+  </div>
+  <footer>Template · _design-system tokens + components + skins · inline demo data</footer>
+</div>
+
+<script>
+const f = DS.fmt;
+const sum = a => a.reduce((x,y)=>x+y,0);
+
+// ---------- demo data (swap for real data; visual structure unchanged) ----------
+const cats = ["Powertrain","Body & Trim","Electronics","Tires & Wheels","Interior","Accessories","Fluids"];
+// stock value (฿) per category
+const stockVal = [42.6e6, 31.4e6, 58.9e6, 18.2e6, 14.7e6, 9.3e6, 5.1e6];
+// aging buckets per category (units in stock by days held)
+const age0_30  = [1820, 1410, 2240, 980, 760, 540, 410];
+const age31_60 = [640, 520, 880, 410, 320, 210, 160];
+const age61_90 = [280, 240, 360, 190, 150, 120, 70];
+const age90    = [140, 180, 260, 90, 110, 95, 40];
+// monthly inventory turnover (annualized)
+const MONTHS = ["Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar","Apr","May","Jun"];
+const turn   = [6.1,6.4,6.0,6.8,7.2,7.5,7.1,7.4,7.9,8.2,8.0,8.4];
+// stockout risk rows: [sku, category, onHand, daysOfCover, severity]
+const skuRows = [
+  ["PWT-0042","Powertrain",12,3,"Critical"],
+  ["ELC-1188","Electronics",34,5,"Critical"],
+  ["TIR-0571","Tires & Wheels",58,9,"Watch"],
+  ["BDY-0309","Body & Trim",96,14,"Watch"],
+  ["INT-0820","Interior",210,28,"OK"],
+  ["ACC-0455","Accessories",340,46,"OK"],
+];
+
+// ---------- KPIs ----------
+const totalSkus = 1284;
+const totalVal  = sum(stockVal);
+const atRisk    = skuRows.filter(r=>r[4]!=="OK").length;
+const kpis=[
+  {t:"Total SKUs", v:f.num(totalSkus), sub:"active items"},
+  {t:"Stock Value", v:f.abbr(totalVal,'฿'), d:2.8, sub:"vs ฿173.4M LM"},
+  {t:"Inventory Turnover", v:turn[turn.length-1].toFixed(1)+"x", d:5.0, sub:"annualized · target 8.0x"},
+  {t:"Fill Rate", v:"96.4%", bar:96.4, sub:"target 98%", d:-0.6},
+  {t:"At-Risk SKUs", v:f.num(38), sub:`${atRisk} critical/watch shown`},
+];
+document.getElementById("kpis").innerHTML = kpis.map(k=>`
+  <div class="card kpi"><span class="accent"></span><h3>${k.t}</h3>
+  <div class="val">${k.v}</div>
+  ${k.bar!==undefined?`<div class="bar"><i style="width:${k.bar}%"></i></div>`:``}
+  <div class="sub">${k.d!==undefined?`<span class="delta ${k.d>=0?'up':'down'}">${f.pct(k.d)}</span>`:``}${k.sub}</div></div>`).join("");
+
+// ---------- charts (read DS.C()/DS.colors() at build time so reskin recolors) ----------
+DS.add("stockValue", el => {
+  const opts = DS.baseOpts({horizontal:true});
+  opts.scales.x.ticks.callback = v => DS.fmt.abbr(v,'฿');   // value (X) axis in ฿, keep category labels on Y
+  return new Chart(el,{type:"bar",data:{labels:cats,
+    datasets:[{data:stockVal,backgroundColor:cats.map((_,i)=>DS.colors()[Math.min(i,7)]),borderRadius:5}]},
+    options:opts});
+});
+
+DS.add("aging", el => new Chart(el,{type:"bar",data:{labels:cats,datasets:[
+  {label:"0-30 days",data:age0_30,backgroundColor:DS.C('c1')},
+  {label:"31-60 days",data:age31_60,backgroundColor:DS.C('c2')},
+  {label:"61-90 days",data:age61_90,backgroundColor:DS.C('c3')},
+  {label:"90+ days",data:age90,backgroundColor:DS.C('c5')},
+]},options:DS.baseOpts({stacked:true,legend:true})}));
+
+DS.add("turnover", el => new Chart(el,{type:"line",data:{labels:MONTHS,datasets:[
+  {label:"Turnover (x)",data:turn,borderColor:DS.C('c1'),backgroundColor:DS.cssVar('--accent-soft'),
+   borderWidth:2.5,tension:.35,pointRadius:0,fill:true}]},options:DS.baseOpts({legend:false})}));
+
+// ---------- aging legend ----------
+function agingLegend(){
+  const items=[["0-30 days",DS.C('c1')],["31-60 days",DS.C('c2')],["61-90 days",DS.C('c3')],["90+ days",DS.C('c5')]];
+  document.getElementById("agingLegend").innerHTML =
+    items.map(([n,c])=>`<span><span class="dot" style="background:${c}"></span>${n}</span>`).join("");
+}
+
+// ---------- risk table ----------
+const sevPill = s => {
+  const c = s==="Critical"?DS.C('neg'):s==="Watch"?DS.C('c3'):DS.C('accent');
+  return `<span class="tag-pill" style="background:transparent;color:${c};border:1px solid ${c}">${s}</span>`;
+};
+function fillRisk(){
+  document.querySelector("#risk tbody").innerHTML = skuRows.map(([sku,cat,oh,doc,sev])=>`
+    <tr><td><b>${sku}</b></td><td style="color:var(--muted)">${cat}</td>
+    <td class="num">${f.num(oh)}</td><td class="num">${doc}d</td><td>${sevPill(sev)}</td></tr>`).join("");
+}
+
+// re-render legend + table on every reskin (DS handles charts)
+const _render = DS.renderAll;
+DS.renderAll = function(){ _render(); agingLegend(); fillRisk(); };
+
+// ?skin=... support (deep link to a skin)
+const qSkin = new URLSearchParams(location.search).get("skin");
+if(qSkin){ document.body.className="skin-"+qSkin; const s=document.getElementById("skin"); if(s) s.value=qSkin; }
+DS.renderAll();
+</script>
+</body>
+</html>

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ops Monitor · Live (API)</title>
+<link rel="stylesheet" href="../../../_design-system/tokens.css" />
+<link rel="stylesheet" href="../../../_design-system/components.css" />
+<link rel="stylesheet" href="../../../_design-system/skins/skins.css" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="../../../_design-system/charts.js"></script>
+</head>
+<body class="skin-command-center">
+<div class="wrap">
+  <header class="ds-header">
+    <div class="brand">
+      <div class="logo"><span class="mark">OPS</span><span class="tag">CONTROL ROOM</span></div>
+      <div>
+        <h1>Operational Monitor <span class="tag-pill">Live · API</span></h1>
+        <p>Archetype 02 · monitor real-time — SLA, throughput, incidents, utilization</p>
+      </div>
+    </div>
+    <div class="ctx">
+      <select class="skin-select" id="skin" onchange="DS.setSkin(this.value)">
+        <option value="command-center">Skin: Command Center</option>
+        <option value="finance-dark">Skin: Finance Dark</option>
+        <option value="byd-red">Skin: BYD Red</option>
+        <option value="saas-violet">Skin: SaaS Violet</option>
+        <option value="luxury-gold">Skin: Luxury Gold</option>
+      </select>
+      <div class="chip active">LIVE</div>
+      <div class="chip">Window <b>24h</b></div>
+    </div>
+  </header>
+
+  <div id="loading" style="padding:14px 16px;margin:6px 0 14px;border:1px solid var(--line);border-radius:10px;color:var(--muted);background:var(--card)">
+    Loading live data from API…
+  </div>
+
+  <section class="kpis" id="kpis"></section>
+
+  <div class="row c-21">
+    <div class="card chart-card">
+      <div class="chart-head"><h3><span class="dot"></span>Throughput (req/min · last 24h)</h3></div>
+      <div class="canvas-box"><canvas id="throughput"></canvas></div>
+    </div>
+    <div class="card chart-card">
+      <div class="chart-head"><h3><span class="dot"></span>Incidents by Severity (7d)</h3></div>
+      <div class="canvas-box lg"><canvas id="incidents"></canvas></div>
+    </div>
+  </div>
+
+  <div class="row c-12">
+    <div class="card chart-card">
+      <div class="chart-head"><h3><span class="dot"></span>Latency p50 / p95 (ms · 24h)</h3></div>
+      <div class="canvas-box sm"><canvas id="util"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="chart-head"><h3><span class="dot"></span>Active Alert Feed</h3></div>
+      <table id="alerts"><thead><tr><th>Time</th><th>Service</th><th>Severity</th><th>Message</th><th class="num">Age</th></tr></thead><tbody></tbody></table>
+    </div>
+  </div>
+  <footer>Ops-Monitor-Live · _design-system · operational / command-center archetype · data via mock REST API</footer>
+</div>
+
+<script>
+const API = "/api";   // relative -> ใช้กับ server ไหนก็ได้ที่มี route /api
+const f = DS.fmt;
+
+// ---------- data holders (filled from API) ----------
+let hours = [], flow = [], lat50 = [], lat95 = [];
+let days = [], sevCrit = [], sevMaj = [], sevMin = [];
+let feed = [];
+
+// ---------- helpers ----------
+const hhmm = iso => { const d = new Date(iso); return String(d.getUTCHours()).padStart(2,"0")+":00"; };
+const ageLabel = m => m >= 1440 ? Math.round(m/1440)+"d" : m >= 60 ? Math.round(m/60)+"h" : m+"m";
+
+// ---------- KPI builder (from live data) ----------
+function buildKpis(){
+  const lastErr = flow.length ? lat95[lat95.length-1] : 0;
+  const peakRpm = flow.length ? Math.max(...flow) : 0;
+  const lastRpm = flow.length ? flow[flow.length-1] : 0;
+  const lastP50 = lat50.length ? lat50[lat50.length-1] : 0;
+  const lastP95 = lat95.length ? lat95[lat95.length-1] : 0;
+  const openCount = feed.filter(r => r.status !== "Resolved").length;
+  const critCount = feed.filter(r => r.severity === "Critical" && r.status !== "Resolved").length;
+  const majCount  = feed.filter(r => r.severity === "Major" && r.status !== "Resolved").length;
+  // SLA proxy = 100 - avg error rate
+  const avgErr = errRates.length ? errRates.reduce((a,b)=>a+b,0)/errRates.length : 0;
+  const sla = (100 - avgErr).toFixed(1);
+
+  const tiles = [
+    {t:"SLA Attainment", v:sla+"%", bar:Math.min(100,+sla), sub:"target 99.5%"},
+    {t:"Active Incidents", v:String(openCount), sub:`${critCount} critical · ${majCount} major`},
+    {t:"Throughput", v:f.abbr(lastRpm), sub:"req/min · peak "+f.abbr(peakRpm)},
+    {t:"Latency p50", v:lastP50+"ms", sub:"p95 "+lastP95+"ms"},
+    {t:"Active Alerts", v:String(feed.length), sub:"last 7 days"},
+  ];
+  document.getElementById("kpis").innerHTML = tiles.map(k=>`
+    <div class="card kpi"><span class="accent"></span><h3>${k.t}</h3>
+    <div class="val">${k.v}</div>
+    ${k.bar!==undefined?`<div class="bar"><i style="width:${k.bar}%"></i></div>`:``}
+    <div class="sub">${k.d!==undefined?`<span class="delta ${k.d>=0?'up':'down'}">${f.pct(k.d)}</span>`:``}${k.sub}</div></div>`).join("");
+}
+let errRates = [];
+
+// ---------- charts (read DS.C()/colors() at BUILD time) ----------
+DS.add("throughput", el => new Chart(el,{type:"line",data:{labels:hours,datasets:[
+  {label:"req/min",data:flow,borderColor:DS.C('c1'),backgroundColor:DS.cssVar('--accent-soft'),
+   borderWidth:2.5,tension:.4,pointRadius:0,fill:true}]},options:DS.baseOpts({legend:false})}));
+
+DS.add("incidents", el => new Chart(el,{type:"bar",data:{labels:days,datasets:[
+  {label:"Critical",data:sevCrit,backgroundColor:DS.C('c5')},
+  {label:"Major",data:sevMaj,backgroundColor:DS.C('c3')},
+  {label:"Minor",data:sevMin,backgroundColor:DS.C('c2')},
+]},options:DS.baseOpts({stacked:true,legend:true})}));
+
+DS.add("util", el => new Chart(el,{type:"line",data:{labels:hours,datasets:[
+  {label:"p50",data:lat50,borderColor:DS.C('c1'),borderWidth:2,tension:.35,pointRadius:0,fill:false},
+  {label:"p95",data:lat95,borderColor:DS.C('c3'),borderWidth:2,tension:.35,pointRadius:0,fill:false},
+]},options:DS.baseOpts({legend:true})}));
+
+// ---------- alert table ----------
+const sevPill = s => {
+  const c = s==="Critical"?DS.C('neg'):s==="Major"?DS.C('c3'):DS.C('muted');
+  return `<span class="tag-pill" style="background:transparent;color:${c};border:1px solid ${c}">${s}</span>`;
+};
+function fillAlerts(){
+  document.querySelector("#alerts tbody").innerHTML = feed.slice(0,8).map(r=>`
+    <tr><td>${hhmm(r.opened_at)}</td><td>${r.service}</td><td>${sevPill(r.severity)}</td>
+    <td style="color:var(--muted)">${r.message}</td><td class="num">${ageLabel(r.age_min)}</td></tr>`).join("");
+}
+const _r = DS.renderAll; DS.renderAll = function(){ _r(); buildKpis(); fillAlerts(); };
+
+// ---------- skin handling ----------
+const qSkin = new URLSearchParams(location.search).get("skin");
+if(qSkin){ document.body.className="skin-"+qSkin; const sel=document.getElementById("skin"); if(sel) sel.value=qSkin; }
+
+// ---------- map API -> chart shapes -----------
+function mapMetrics(rows){
+  hours = rows.map(r => hhmm(r.timestamp));
+  flow  = rows.map(r => r.throughput_rpm);
+  lat50 = rows.map(r => r.latency_ms_p50);
+  lat95 = rows.map(r => r.latency_ms_p95);
+  errRates = rows.map(r => r.error_rate_pct);
+}
+function mapIncidents(rows){
+  feed = rows;
+  // 7-day severity rollup (derived on the page) — bucket incidents by day-of-week
+  const order = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+  const idx = {Mon:0,Tue:1,Wed:2,Thu:3,Fri:4,Sat:5,Sun:6};
+  const name = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  days = order.slice();
+  sevCrit = Array(7).fill(0); sevMaj = Array(7).fill(0); sevMin = Array(7).fill(0);
+  rows.forEach(r => {
+    const d = new Date(r.opened_at);
+    const lbl = name[d.getUTCDay()];
+    const i = idx[lbl];
+    if (r.severity === "Critical") sevCrit[i]++;
+    else if (r.severity === "Major") sevMaj[i]++;
+    else sevMin[i]++;
+  });
+}
+
+// ---------- load ----------
+async function load(){
+  const loadingEl = document.getElementById("loading");
+  try {
+    const [mRes, iRes] = await Promise.all([
+      fetch(`${API}/metrics`),
+      fetch(`${API}/incidents`),
+    ]);
+    if(!mRes.ok || !iRes.ok) throw new Error("HTTP "+mRes.status+"/"+iRes.status);
+    const mJson = await mRes.json();
+    const iJson = await iRes.json();
+    mapMetrics(mJson.data);
+    mapIncidents(iJson.data);
+    loadingEl.style.display = "none";
+    DS.renderAll();
+  } catch (err) {
+    loadingEl.innerHTML = `<b style="color:var(--neg,#e5484d)">Cannot reach API.</b> ` +
+      `Start the mock server first:<br><code>python "01-data-raw/mock-api/serve.py"</code>` +
+      ` then open <code>http://localhost:8010/Projects/Ops-Monitor-Live/web/</code> &nbsp;(${err.message})`;
+  }
+}
+load();
+</script>
+</body>
+</html>

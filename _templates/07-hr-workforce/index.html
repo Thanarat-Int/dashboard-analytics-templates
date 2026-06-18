@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Template · HR / Workforce Analytics</title>
+<link rel="stylesheet" href="../../_design-system/tokens.css" />
+<link rel="stylesheet" href="../../_design-system/components.css" />
+<link rel="stylesheet" href="../../_design-system/skins/skins.css" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="../../_design-system/charts.js"></script>
+</head>
+<body class="skin-finance-dark">
+<div class="wrap">
+  <header class="ds-header">
+    <div class="brand">
+      <div class="logo"><span class="mark">HR</span><span class="tag">PEOPLE ANALYTICS</span></div>
+      <div>
+        <h1>Workforce Analytics <span class="tag-pill">Template</span></h1>
+        <p>Archetype 07 · monitor — headcount, attrition, hiring, engagement</p>
+      </div>
+    </div>
+    <div class="ctx">
+      <select class="skin-select" id="skin" onchange="DS.setSkin(this.value)">
+        <option value="byd-red">Skin: BYD Red</option>
+        <option value="finance-dark">Skin: Finance Dark</option>
+        <option value="saas-violet">Skin: SaaS Violet</option>
+        <option value="luxury-gold">Skin: Luxury Gold</option>
+        <option value="command-center">Skin: Command Center</option>
+      </select>
+      <div class="chip active">YTD</div>
+      <div class="chip">As of <b>Dec 2025</b></div>
+    </div>
+  </header>
+
+  <section class="kpis" id="kpis"></section>
+
+  <div class="row c-21">
+    <!-- Power BI: Line and clustered column chart (column = headcount on y, line = attrition% on secondary axis y1) -->
+    <div class="card chart-card">
+      <div class="chart-head"><h3><span class="dot"></span>Headcount &amp; Attrition trend (12 months)</h3></div>
+      <div class="canvas-box"><canvas id="trend"></canvas></div>
+      <div class="legend" id="trendLegend"></div>
+    </div>
+    <!-- Power BI: Donut chart (workforce headcount by function) -->
+    <div class="card chart-card">
+      <div class="chart-head"><h3><span class="dot"></span>Workforce by Function</h3></div>
+      <div class="canvas-box lg"><canvas id="func"></canvas></div>
+      <div class="legend" id="funcLegend"></div>
+    </div>
+  </div>
+
+  <div class="row c-12">
+    <!-- Power BI: Clustered bar chart (attrition % by department, horizontal) -->
+    <div class="card chart-card">
+      <div class="chart-head"><h3><span class="dot"></span>Attrition by Department</h3></div>
+      <div class="canvas-box sm"><canvas id="dept"></canvas></div>
+    </div>
+    <!-- Power BI: Table / Matrix visual (hiring pipeline by department) -->
+    <div class="card">
+      <div class="chart-head"><h3><span class="dot"></span>Hiring Pipeline by Department</h3></div>
+      <table id="pipe"><thead><tr><th>Department</th><th class="num">Open</th><th class="num">In Process</th><th class="num">Offers</th><th class="num">Time-to-fill</th></tr></thead><tbody></tbody></table>
+    </div>
+  </div>
+  <footer>Template · _design-system tokens + components + skins · inline demo data</footer>
+</div>
+
+<script>
+// ---------- demo data (สลับเป็นของจริงได้ทันที โครงไม่เปลี่ยน) ----------
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const headcount = [1184,1192,1207,1221,1238,1244,1251,1263,1278,1290,1301,1318];
+const attrition = [1.1,0.9,1.4,1.2,1.0,1.6,1.3,1.1,0.8,1.5,1.2,0.9]; // monthly % of headcount
+
+// attrition % by department (YTD, horizontal bar)
+const depts = [["Sales",14.2],["Customer Support",12.8],["Operations",9.6],["Marketing",8.4],["Engineering",6.1],["Finance",4.7],["HR",3.9],["Product",3.2]];
+
+// workforce headcount by function (donut)
+const funcMix = {labels:["Engineering","Sales","Operations","Support","Marketing","G&A"], data:[386,254,228,176,142,132]};
+
+// hiring pipeline: [Department, Open, In Process, Offers, Time-to-fill days]
+const pipeline = [
+  ["Engineering",18,42,7,38],
+  ["Sales",12,28,5,29],
+  ["Operations",9,17,4,33],
+  ["Customer Support",7,21,6,24],
+  ["Marketing",4,9,2,31],
+  ["Finance",3,6,1,41],
+  ["Product",2,5,2,46],
+];
+
+const sum = a => a.reduce((x,y)=>x+y,0);
+const f = DS.fmt;
+
+// ---------- KPIs ----------
+const hcNow = headcount[headcount.length-1];
+const hcStart = headcount[0];
+const attritionYTD = +sum(attrition).toFixed(1);            // YTD rolling sum of monthly %
+const openRoles = sum(pipeline.map(p=>p[1]));
+const kpis=[
+  {t:"Headcount", v:f.num(hcNow), d:(hcNow-hcStart)/hcStart*100, sub:`vs ${f.num(hcStart)} Jan`},
+  {t:"Attrition % (YTD)", v:attritionYTD+"%", d:-1.8, sub:"vs 14.5% LY"},
+  {t:"Avg Tenure", v:"3.4 yrs", sub:"median 2.9 yrs"},
+  {t:"Open Roles", v:f.num(openRoles), sub:`across ${pipeline.length} departments`},
+  {t:"Offer Accept %", v:"87%", bar:87, sub:"148 / 170 offers"},
+];
+document.getElementById("kpis").innerHTML = kpis.map(k=>`
+  <div class="card kpi"><span class="accent"></span><h3>${k.t}</h3>
+  <div class="val">${k.v}</div>
+  ${k.bar!==undefined?`<div class="bar"><i style="width:${k.bar}%"></i></div>`:``}
+  <div class="sub">${k.d!==undefined?`<span class="delta ${k.d>=0?'up':'down'}">${f.pct(k.d)} YoY</span>`:``}${k.sub}</div></div>`).join("");
+
+// ---------- charts (อ้าง DS.colors()/DS.C() ตอน build -> reskin แล้วสีตามทันที) ----------
+DS.add("trend", el => {
+  const opt = DS.baseOpts({dualAxis:true});
+  opt.scales.y1.ticks.callback = v => v + '%';   // 2nd axis = attrition %, not currency
+  return new Chart(el,{data:{labels:MONTHS,datasets:[
+    {type:"bar",label:"Headcount",data:headcount,backgroundColor:DS.C('c1'),borderRadius:5,yAxisID:"y",order:2,barPercentage:.7},
+    {type:"line",label:"Attrition %",data:attrition,borderColor:DS.C('c2'),borderWidth:2.5,tension:.35,pointRadius:0,yAxisID:"y1",order:1},
+  ]},options:opt});
+});
+
+DS.add("func", el => new Chart(el,{type:"doughnut",data:{labels:funcMix.labels,
+  datasets:[{data:funcMix.data,backgroundColor:funcMix.labels.map((_,i)=>DS.colors()[Math.min(i,7)]),borderColor:DS.cssVar('--card'),borderWidth:3}]},
+  options:{cutout:"66%",maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:DS.tooltip()}}}));
+
+DS.add("dept", el => new Chart(el,{type:"bar",data:{labels:depts.map(d=>d[0]),
+  datasets:[{data:depts.map(d=>d[1]),backgroundColor:depts.map((_,i)=>DS.colors()[Math.min(i,7)]),borderRadius:5}]},
+  options:DS.baseOpts({horizontal:true})}));
+
+// ---------- legends + table ----------
+function legends(){
+  const tl=[["Headcount",DS.C('c1')],["Attrition %",DS.C('c2')]];
+  document.getElementById("trendLegend").innerHTML = tl.map(([n,c])=>`<span><span class="dot" style="background:${c}"></span>${n}</span>`).join("");
+  const tot=sum(funcMix.data);
+  document.getElementById("funcLegend").innerHTML = funcMix.labels.map((s,i)=>
+    `<span><span class="dot" style="background:${DS.colors()[Math.min(i,7)]}"></span>${s} · <b>${Math.round(funcMix.data[i]/tot*100)}%</b></span>`).join("");
+}
+const maxOpen=Math.max(...pipeline.map(p=>p[1]));
+document.querySelector("#pipe tbody").innerHTML = pipeline.map(([d,o,ip,of,ttf])=>`
+  <tr><td><span class="rankbar" style="width:${o/maxOpen*42}px"></span>${d}</td>
+  <td class="num">${f.num(o)}</td><td class="num">${f.num(ip)}</td><td class="num">${f.num(of)}</td><td class="num">${ttf} d</td></tr>`).join("");
+
+// re-render legends ทุกครั้งที่สลับ skin (charts จัดการเองโดย DS)
+const _render = DS.renderAll;
+DS.renderAll = function(){ _render(); legends(); };
+
+// รองรับ ?skin=... (ลิงก์ตรงไปยัง skin ที่ต้องการ)
+const qSkin = new URLSearchParams(location.search).get("skin");
+if(qSkin){ document.body.className="skin-"+qSkin; const s=document.getElementById("skin"); if(s) s.value=qSkin; }
+DS.renderAll();
+</script>
+</body>
+</html>

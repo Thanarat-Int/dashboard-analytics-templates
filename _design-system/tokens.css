@@ -1,0 +1,49 @@
+/* ============================================================
+   Design System — TOKENS
+   ตัวแปรกลางทั้งหมด (สี/ตัวอักษร/ระยะ/เงา) — แหล่งความจริงเดียว
+   ค่า default = light neutral ; skin จะ override ค่าพวกนี้ (ดู skins.css)
+   ============================================================ */
+:root{
+  /* --- surfaces --- */
+  --bg:#F3F4F6;            /* พื้นหน้า */
+  --card:#FFFFFF;          /* พื้นการ์ด */
+  --card-2:#FAFBFC;        /* การ์ดรอง/odd row */
+  --line:#E7E9ED;          /* เส้นขอบ/divider */
+  --grid:#EAECEF;          /* gridline ในกราฟ */
+
+  /* --- text --- */
+  --ink:#171A1F;           /* ตัวอักษรหลัก */
+  --muted:#697079;         /* ตัวอักษรรอง */
+  --faint:#9AA1AB;         /* ตัวอักษรจาง */
+
+  /* --- accent (brand) --- */
+  --accent:#2E7CF6;        /* สีหลักของแบรนด์/ซีรีส์เด่น */
+  --accent-2:#2B2F36;      /* สีรอง */
+  --accent-soft:#EAF1FE;   /* tint พื้นอ่อนของ accent */
+  --on-accent:#FFFFFF;     /* ตัวอักษรบน accent */
+
+  /* --- semantic --- */
+  --pos:#12875A;           /* บวก/ขึ้น */
+  --neg:#E2231A;           /* ลบ/ลง */
+  --warn:#C98A12;          /* เตือน */
+  --pos-soft:rgba(18,135,90,.10);
+  --neg-soft:rgba(226,35,26,.10);
+
+  /* --- categorical series (กราฟหลายชุด) --- */
+  --c1:#2E7CF6; --c2:#2B2F36; --c3:#8A9099; --c4:#13B981;
+  --c5:#F2A33C; --c6:#9C6BFF; --c7:#E0668F; --c8:#16C8D8;
+
+  /* --- shape --- */
+  --radius:14px;
+  --radius-sm:9px;
+  --gap:16px;
+  --pad:16px 18px;
+  --shadow:0 1px 2px rgba(20,24,31,.06), 0 6px 18px rgba(20,24,31,.05);
+
+  /* --- type --- */
+  --font:'Segoe UI','IBM Plex Sans Thai',system-ui,-apple-system,sans-serif;
+  --font-num:'Segoe UI',ui-monospace,system-ui,sans-serif; /* tabular-nums เปิดที่ตัวเลข */
+
+  /* --- header accent shape (skin บางตัวใช้แถบสีบนหัว) --- */
+  --header-bar:transparent;
+}

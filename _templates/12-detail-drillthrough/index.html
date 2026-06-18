@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Template · Detail / Drillthrough</title>
+<link rel="stylesheet" href="../../_design-system/tokens.css" />
+<link rel="stylesheet" href="../../_design-system/components.css" />
+<link rel="stylesheet" href="../../_design-system/skins/skins.css" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="../../_design-system/charts.js"></script>
+<style>
+  /* status pill (record-level) — อ่านสีจาก token ของ skin ปัจจุบัน */
+  .sev-pill{display:inline-block;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:700;
+    letter-spacing:.2px;white-space:nowrap}
+  .sev-pill.good{background:var(--pos-soft);color:var(--pos)}
+  .sev-pill.neutral{background:var(--grid);color:var(--muted)}
+  .sev-pill.neg{background:var(--neg-soft);color:var(--neg)}
+  /* drillthrough callout */
+  .callout{background:var(--accent-soft);border:1px solid var(--accent);border-left:4px solid var(--accent);
+    border-radius:var(--radius);padding:13px 16px;margin-bottom:var(--gap);display:flex;gap:12px;align-items:flex-start;
+    box-shadow:var(--shadow)}
+  .callout .ic{font-size:18px;line-height:1.2;color:var(--accent)}
+  .callout .ct{font-size:12.8px;line-height:1.6;color:var(--ink)}
+  .callout .ct b{color:var(--accent)}
+  /* hero table polish */
+  .hero-table td{padding:11px 10px}
+  .mono{font-variant-numeric:tabular-nums;color:var(--muted);font-size:12.5px}
+</style>
+</head>
+<body class="skin-byd-red">
+<div class="wrap">
+  <header class="ds-header">
+    <div class="brand">
+      <div class="logo"><span class="mark">DTL</span><span class="tag">DRILLTHROUGH</span></div>
+      <div>
+        <h1>Detail — Dealer: BYD Rama III <span class="tag-pill">Template</span></h1>
+        <p>Archetype 12 · detail — drillthrough destination for one entity (record-level)</p>
+      </div>
+    </div>
+    <div class="ctx">
+      <select class="skin-select" id="skin" onchange="DS.setSkin(this.value)">
+        <option value="byd-red">Skin: BYD Red</option>
+        <option value="finance-dark">Skin: Finance Dark</option>
+        <option value="saas-violet">Skin: SaaS Violet</option>
+        <option value="luxury-gold">Skin: Luxury Gold</option>
+        <option value="command-center">Skin: Command Center</option>
+      </select>
+    </div>
+  </header>
+
+  <!-- filter context ที่ถูกส่งมาจากการ drillthrough -->
+  <div class="ctx" style="margin-bottom:var(--gap);flex-wrap:wrap">
+    <div class="chip active">Dealer: <b>BYD Rama III</b></div>
+    <div class="chip">Region: <b>Central</b></div>
+    <div class="chip">Period: <b>YTD 2026</b></div>
+  </div>
+
+  <div class="callout">
+    <span class="ic">↳</span>
+    <span class="ct">นี่คือหน้า <b>Power BI Drillthrough</b> — คลิกขวาที่ dealer/region บน archetype ใดก็ได้ →
+      <b>Drillthrough</b> มาหน้านี้ โดยส่ง entity เป็น filter context (ตั้ง <b>Drillthrough field = Dealer</b>)</span>
+  </div>
+
+  <section class="kpis" id="kpis"></section>
+
+  <div class="row c-2">
+    <div class="card chart-card">
+      <div class="chart-head"><h3><span class="dot"></span>Monthly Units · BYD Rama III</h3></div>
+      <div class="canvas-box sm"><canvas id="unitTrend"></canvas></div>
+    </div>
+    <div class="card chart-card">
+      <div class="chart-head"><h3><span class="dot"></span>Units by Model</h3></div>
+      <div class="canvas-box sm"><canvas id="modelMix"></canvas></div>
+    </div>
+  </div>
+
+  <!-- HERO: record-level transaction table -->
+  <div class="row c-1" style="grid-template-columns:1fr">
+    <div class="card">
+      <div class="chart-head"><h3><span class="dot"></span>Orders (record-level)</h3>
+        <span class="mono" id="orderCount"></span></div>
+      <table class="hero-table" id="orders">
+        <thead><tr>
+          <th>Order ID</th><th>Date</th><th>Model</th><th>Customer Type</th>
+          <th>Channel</th><th>Status</th><th class="num">Amount</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer>Template · _design-system tokens + components + skins · inline demo data · drillthrough destination</footer>
+</div>
+
+<script>
+// ---------- demo data: ONE dealer (BYD Rama III) — สลับเป็นของจริงได้ทันที ----------
+const f = DS.fmt;
+const sum = a => a.reduce((x,y)=>x+y,0);
+
+const MONTHS  = ["Jan","Feb","Mar","Apr","May","Jun"];
+const dealerUnits = [14,12,18,16,15,20];                 // monthly units (YTD)
+const modelByUnit = [["Atto 3",27],["Dolphin",22],["Seal",18],["Sealion 6",14],["M6",9],["Han",5]];
+
+// dealer-level KPI (consistent demo numbers)
+const unitsYTD  = sum(dealerUnits);                      // 95
+const aspBaht   = 1185000;                               // avg selling price
+const revenueYTD= unitsYTD * aspBaht;
+const targetYTD = 102;
+const tatDays   = 9.4;
+
+const kpis = [
+  {t:"Units Sold", v:f.num(unitsYTD), d:11.8, sub:"vs 85 LY"},
+  {t:"Revenue", v:f.abbr(revenueYTD,'฿'), d:14.2, sub:"YTD 2026"},
+  {t:"Target Achievement", v:Math.round(unitsYTD/targetYTD*100)+"%", bar:Math.min(unitsYTD/targetYTD*100,100), sub:`${f.num(unitsYTD)} / ${f.num(targetYTD)} units`},
+  {t:"Avg Selling Price", v:f.abbr(aspBaht,'฿'), sub:"per unit"},
+  {t:"Avg TAT", v:tatDays.toFixed(1)+" d", d:-6.0, sub:"booking → delivery"},
+];
+document.getElementById("kpis").innerHTML = kpis.map(k=>`
+  <div class="card kpi"><span class="accent"></span><h3>${k.t}</h3>
+  <div class="val">${k.v}</div>
+  ${k.bar!==undefined?`<div class="bar"><i style="width:${k.bar}%"></i></div>`:``}
+  <div class="sub">${k.d!==undefined?`<span class="delta ${k.d>=0?'up':'down'}">${f.pct(k.d)} YoY</span>`:``}${k.sub}</div></div>`).join("");
+
+// ---------- record-level orders (~12 rows) ----------
+// [id, date, model, customerType, channel, status]  status: Delivered|Booked|Cancelled
+const orderRows = [
+  ["SO-26-0412","2026-01-08","Atto 3","Individual","Showroom","Delivered"],
+  ["SO-26-0418","2026-01-22","Dolphin","Fleet","Online","Delivered"],
+  ["SO-26-0427","2026-02-05","Seal","Individual","Showroom","Delivered"],
+  ["SO-26-0433","2026-02-19","Sealion 6","Corporate","Partner","Booked"],
+  ["SO-26-0441","2026-03-03","Atto 3","Individual","Online","Delivered"],
+  ["SO-26-0450","2026-03-17","Han","Individual","Showroom","Cancelled"],
+  ["SO-26-0458","2026-03-28","Dolphin","Individual","Showroom","Delivered"],
+  ["SO-26-0466","2026-04-09","M6","Fleet","Partner","Booked"],
+  ["SO-26-0474","2026-04-24","Seal","Corporate","Showroom","Delivered"],
+  ["SO-26-0483","2026-05-11","Atto 3","Individual","Online","Delivered"],
+  ["SO-26-0491","2026-05-26","Sealion 6","Individual","Showroom","Booked"],
+  ["SO-26-0502","2026-06-06","Seal","Individual","Showroom","Cancelled"],
+];
+// per-model demo amount (Baht)
+const modelPrice = {"Atto 3":1099000,"Dolphin":799000,"Seal":1399000,"Sealion 6":1599000,"M6":829000,"Han":1799000};
+const sevClass = {Delivered:"good",Booked:"neutral",Cancelled:"neg"};
+
+document.getElementById("orderCount").textContent = orderRows.length + " records";
+document.querySelector("#orders tbody").innerHTML = orderRows.map(r=>{
+  const [oid,date,model,cust,channel,st]=r;
+  return `<tr>
+    <td class="mono">${oid}</td><td class="mono">${date}</td><td><b>${model}</b></td>
+    <td>${cust}</td><td>${channel}</td>
+    <td><span class="sev-pill ${sevClass[st]}">${st}</span></td>
+    <td class="num">฿${f.num(modelPrice[model])}</td></tr>`;
+}).join("");
+
+// ---------- charts (อ้าง DS.colors()/DS.C() ตอน build -> reskin แล้วสีตามทันที) ----------
+DS.add("unitTrend", el => new Chart(el,{type:"line",data:{labels:MONTHS,datasets:[
+  {label:"Units",data:dealerUnits,borderColor:DS.C('c1'),backgroundColor:DS.C('accent-soft'),
+   borderWidth:2.5,tension:.35,fill:true,pointRadius:3,pointBackgroundColor:DS.C('c1')},
+]},options:DS.baseOpts({})}));
+
+DS.add("modelMix", el => new Chart(el,{type:"bar",data:{labels:modelByUnit.map(m=>m[0]),
+  datasets:[{data:modelByUnit.map(m=>m[1]),backgroundColor:modelByUnit.map((_,i)=>DS.colors()[Math.min(i,7)]),borderRadius:5}]},
+  options:DS.baseOpts({horizontal:true})}));
+
+// รองรับ ?skin=... (ลิงก์ตรงไปยัง skin ที่ต้องการ)
+const qSkin = new URLSearchParams(location.search).get("skin");
+if(qSkin){ document.body.className="skin-"+qSkin; const s=document.getElementById("skin"); if(s) s.value=qSkin; }
+DS.renderAll();
+</script>
+</body>
+</html>

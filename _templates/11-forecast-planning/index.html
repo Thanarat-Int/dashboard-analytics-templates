@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Template · Forecast &amp; Planning</title>
+<link rel="stylesheet" href="../../_design-system/tokens.css" />
+<link rel="stylesheet" href="../../_design-system/components.css" />
+<link rel="stylesheet" href="../../_design-system/skins/skins.css" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="../../_design-system/charts.js"></script>
+</head>
+<body class="skin-finance-dark">
+<div class="wrap">
+  <header class="ds-header">
+    <div class="brand">
+      <div class="logo"><span class="mark">FCST</span><span class="tag">PLANNING</span></div>
+      <div>
+        <h1>Forecast &amp; Planning <span class="tag-pill">Template</span></h1>
+        <p>Archetype 11 · forecast — projection, plan vs actual, scenarios, variance bridge</p>
+      </div>
+    </div>
+    <div class="ctx">
+      <select class="skin-select" id="skin" onchange="DS.setSkin(this.value)">
+        <option value="finance-dark">Skin: Finance Dark</option>
+        <option value="byd-red">Skin: BYD Red</option>
+        <option value="saas-violet">Skin: SaaS Violet</option>
+        <option value="luxury-gold">Skin: Luxury Gold</option>
+        <option value="command-center">Skin: Command Center</option>
+      </select>
+      <div class="chip active">FY2026</div>
+      <div class="chip">Horizon <b>Next Q</b></div>
+    </div>
+  </header>
+
+  <section class="kpis" id="kpis"></section>
+
+  <!-- HERO: Power BI native = Line chart (Actual + Forecast + analytics forecast/error-band) -->
+  <div class="row c-21">
+    <div class="card chart-card">
+      <div class="chart-head"><h3><span class="dot"></span>Sales Forecast — Actual vs Projection &amp; Confidence Band (units)</h3></div>
+      <div class="canvas-box"><canvas id="forecast"></canvas></div>
+      <div class="legend" id="forecastLegend"></div>
+    </div>
+    <!-- Power BI native = Clustered column chart -->
+    <div class="card chart-card">
+      <div class="chart-head"><h3><span class="dot"></span>Forecast vs Plan vs Actual by Quarter</h3></div>
+      <div class="canvas-box lg"><canvas id="quarter"></canvas></div>
+      <div class="legend" id="quarterLegend"></div>
+    </div>
+  </div>
+
+  <div class="row c-211">
+    <!-- Power BI native = Waterfall chart (here: stacked bar + transparent base) -->
+    <div class="card chart-card">
+      <div class="chart-head"><h3><span class="dot"></span>Variance Bridge · Plan &rarr; Forecast (units)</h3></div>
+      <div class="canvas-box sm"><canvas id="bridge"></canvas></div>
+    </div>
+    <!-- Power BI native = Clustered bar chart -->
+    <div class="card chart-card">
+      <div class="chart-head"><h3><span class="dot"></span>Scenario Planning — Next Quarter</h3></div>
+      <div class="canvas-box sm"><canvas id="scenario"></canvas></div>
+    </div>
+    <!-- Power BI native = Table / Matrix (data bars + conditional formatting) -->
+    <div class="card">
+      <div class="chart-head"><h3><span class="dot"></span>Forecast by Region</h3></div>
+      <table id="region"><thead><tr><th>Region</th><th class="num">Forecast</th><th class="num">Plan</th><th class="num">Gap</th><th class="num">Attain</th></tr></thead><tbody></tbody></table>
+    </div>
+  </div>
+  <footer>Template · _design-system tokens + components + skins · inline demo data · forecast / finance-dark archetype</footer>
+</div>
+
+<script>
+const f = DS.fmt;
+const sum = a => a.reduce((x,y)=>x+y,0);
+
+// ---------- demo data (สลับเป็นของจริงได้ทันที โครงไม่เปลี่ยน) ----------
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec","Jan'27","Feb'27","Mar'27"];
+const SPLIT  = 9; // actual covers first 9 months, forecast continues from there
+// actual units (null after split so the solid line stops mid-series)
+const actual   = [4120,4280,4510,4390,4670,4980,5120,5340,5610, null,null,null,null,null,null];
+// forecast: nulls until the join point (index SPLIT-1) so the dashed line continues from last actual
+const fcMid    = actual[SPLIT-1];
+const forecast = [null,null,null,null,null,null,null,null, fcMid, 5780,5990,6240,6410,6680,6950];
+// confidence band: upper / lower around the forecast (and the join point), null over the actual region
+const bandUp   = [null,null,null,null,null,null,null,null, fcMid, 6080,6360,6700,6970,7330,7720];
+const bandLo   = [null,null,null,null,null,null,null,null, fcMid, 5480,5620,5780,5850,6030,6180];
+
+// quarter clustered (Forecast / Plan / Actual)
+const qLabels  = ["Q1","Q2","Q3","Q4"];
+const qActual  = [12910,14040,16070,null];        // Q4 not actualised yet
+const qPlan    = [12600,13800,15600,17400];
+const qFcst    = [12910,14040,16070,18920];        // Q1-Q3 = actual, Q4 = projection
+
+// variance bridge: Plan -> +Volume -> +Price -> -Mix -> Forecast (units, next quarter)
+const bLabels  = ["Plan","+ Volume","+ Price","- Mix","Forecast"];
+const bDelta   = [17400, 1820, 640, 940, 18920];
+const bBase    = [0, 17400, 19220, 18920, 0];        // running base for floating steps
+const bType    = ["total","pos","pos","neg","total"];
+
+// scenarios (next-quarter units)
+const scLabels = ["Pessimistic","Base","Optimistic"];
+const scVals   = [16800,18920,20600];
+
+// region table
+const regions = [
+  ["Central",   6480, 6100],
+  ["East",      3920, 4050],
+  ["North",     2740, 2600],
+  ["Northeast", 2510, 2580],
+  ["South",     1830, 1700],
+  ["West",      1440, 1370],
+];
+
+// ---------- KPIs ----------
+const fcNextQ = bDelta[bDelta.length-1];           // 18,920
+const planNextQ = qPlan[3];                         // 17,400
+const fcFY = sum(qFcst);
+const fyLY = 52400;
+const runRate = Math.round(fcNextQ/3);             // monthly run-rate from next-Q forecast
+const accuracy = 96.3;                             // last period forecast accuracy %
+const kpis=[
+  {t:"Forecast (Next Q)", v:f.num(fcNextQ), sub:`${f.num(fcFY)} units FY proj.`},
+  {t:"vs Plan", v:f.pct((fcNextQ-planNextQ)/planNextQ*100), d:(fcNextQ-planNextQ)/planNextQ*100, sub:`plan ${f.num(planNextQ)}`},
+  {t:"YoY Projected", v:f.pct((fcFY-fyLY)/fyLY*100), d:(fcFY-fyLY)/fyLY*100, sub:`vs ${f.num(fyLY)} LY`},
+  {t:"Run-rate", v:f.num(runRate)+"/mo", sub:"trailing monthly pace"},
+  {t:"Forecast Accuracy", v:f.pctPlain(accuracy,1), bar:accuracy, sub:"last period · 1-MAPE"},
+];
+document.getElementById("kpis").innerHTML = kpis.map(k=>`
+  <div class="card kpi"><span class="accent"></span><h3>${k.t}</h3>
+  <div class="val">${k.v}</div>
+  ${k.bar!==undefined?`<div class="bar"><i style="width:${Math.min(k.bar,100)}%"></i></div>`:``}
+  <div class="sub">${k.d!==undefined?`<span class="delta ${k.d>=0?'up':'down'}">${f.pct(k.d)}</span>`:``}${k.sub}</div></div>`).join("");
+
+// ---------- HERO: forecast line + confidence band (อ้าง DS.C() ตอน build) ----------
+DS.add("forecast", el => {
+  const band = DS.cssVar('--accent-soft');
+  return new Chart(el,{type:"line",data:{labels:MONTHS,datasets:[
+    // band: draw upper first, then lower filling down to upper ('-1') => shaded confidence area
+    {label:"Band Upper",data:bandUp,borderColor:"transparent",backgroundColor:band,pointRadius:0,fill:false,tension:.3,order:5},
+    {label:"Band Lower",data:bandLo,borderColor:"transparent",backgroundColor:band,pointRadius:0,fill:'-1',tension:.3,order:5},
+    {label:"Actual",data:actual,borderColor:DS.C('c1'),borderWidth:2.6,tension:.3,pointRadius:0,spanGaps:false,order:1},
+    {label:"Forecast",data:forecast,borderColor:DS.C('c2'),borderDash:[6,4],borderWidth:2.4,tension:.3,pointRadius:0,spanGaps:false,order:2},
+  ]},options:(()=>{const o=DS.baseOpts({});o.plugins.legend.display=false;
+    o.scales.y.beginAtZero=false;
+    o.scales.y.ticks.callback=v=>DS.fmt.abbr(v);
+    return o;})()});
+});
+
+// ---------- quarter clustered column ----------
+DS.add("quarter", el => new Chart(el,{type:"bar",data:{labels:qLabels,datasets:[
+  {label:"Actual",data:qActual,backgroundColor:DS.C('c1'),borderRadius:4,categoryPercentage:.7},
+  {label:"Plan",data:qPlan,backgroundColor:DS.C('c3'),borderRadius:4,categoryPercentage:.7},
+  {label:"Forecast",data:qFcst,backgroundColor:DS.C('c2'),borderRadius:4,categoryPercentage:.7},
+]},options:(()=>{const o=DS.baseOpts({});o.scales.y.ticks.callback=v=>DS.fmt.abbr(v);return o;})()}));
+
+// ---------- variance bridge (WATERFALL: stacked bar + transparent base) ----------
+DS.add("bridge", el => {
+  const col = t => t==="total"?DS.C('accent'):t==="pos"?DS.C('pos'):DS.C('neg');
+  return new Chart(el,{type:"bar",data:{labels:bLabels,datasets:[
+    {label:"_base",data:bBase,backgroundColor:"transparent",stack:"b"},
+    {label:"value",data:bDelta,backgroundColor:bType.map(col),borderRadius:4,stack:"b"},
+  ]},options:(()=>{const o=DS.baseOpts({stacked:true});o.plugins.legend.display=false;
+    o.scales.y.beginAtZero=false;
+    o.scales.y.ticks.callback=v=>DS.fmt.abbr(v);
+    o.plugins.tooltip.callbacks={label:c=>c.datasetIndex===1?(bType[c.dataIndex]==='neg'?'-':'')+DS.fmt.num(bDelta[c.dataIndex]):null};
+    return o;})()});
+});
+
+// ---------- scenario bars ----------
+DS.add("scenario", el => new Chart(el,{type:"bar",data:{labels:scLabels,datasets:[
+  {data:scVals,backgroundColor:[DS.C('neg'),DS.C('accent'),DS.C('pos')],borderRadius:5,barPercentage:.6},
+]},options:(()=>{const o=DS.baseOpts({});o.plugins.legend.display=false;
+  o.scales.y.beginAtZero=false;o.scales.y.ticks.callback=v=>DS.fmt.abbr(v);return o;})()}));
+
+// ---------- legends + region table ----------
+function build(){
+  // hero legend
+  const hl=[["Actual",DS.C('c1')],["Forecast",DS.C('c2')],["Confidence band",DS.cssVar('--accent-soft')]];
+  document.getElementById("forecastLegend").innerHTML = hl.map(([n,c])=>
+    `<span><span class="dot" style="background:${c}"></span>${n}</span>`).join("");
+  // quarter legend
+  const ql=[["Actual",DS.C('c1')],["Plan",DS.C('c3')],["Forecast",DS.C('c2')]];
+  document.getElementById("quarterLegend").innerHTML = ql.map(([n,c])=>
+    `<span><span class="dot" style="background:${c}"></span>${n}</span>`).join("");
+  // region table: rankbar on Forecast, colored Gap delta pill, attainment %
+  const maxF=Math.max(...regions.map(r=>r[1]));
+  document.querySelector("#region tbody").innerHTML = regions.map(([n,fc,pl])=>{
+    const gap=fc-pl, attain=pl!==0?fc/pl*100:0;
+    return `<tr><td><span class="rankbar" style="width:${fc/maxF*42}px"></span>${n}</td>
+      <td class="num">${f.num(fc)}</td><td class="num">${f.num(pl)}</td>
+      <td class="num"><span class="delta ${gap>=0?'up':'down'}">${gap>=0?'+':''}${f.num(gap)}</span></td>
+      <td class="num">${f.pctPlain(attain)}</td></tr>`;
+  }).join("");
+}
+
+// re-render legends + table ทุกครั้งที่สลับ skin (charts จัดการเองโดย DS)
+const _render = DS.renderAll;
+DS.renderAll = function(){ _render(); build(); };
+
+// รองรับ ?skin=... (ลิงก์ตรงไปยัง skin ที่ต้องการ)
+const qSkin = new URLSearchParams(location.search).get("skin");
+if(qSkin){ document.body.className="skin-"+qSkin; const s=document.getElementById("skin"); if(s) s.value=qSkin; }
+DS.renderAll();
+</script>
+</body>
+</html>

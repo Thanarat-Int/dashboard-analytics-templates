@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BYD Thailand — Executive Overview</title>
+<!-- Chart.js (CDN). ออฟไลน์: ดาวน์โหลด chart.umd.min.js มาวางในโฟลเดอร์แล้วชี้ src มาที่ไฟล์ -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<style>
+  :root{
+    /* BYD brand: Festival Red #D70C19, digital red #E91B21, Cool Grey #686D71, White */
+    --bg:#F3F4F6; --card:#FFFFFF; --card-2:#FAFBFC;
+    --ink:#171A1F; --muted:#697079; --faint:#9aa1ab; --line:#E7E9ED;
+    --red:#E2231A; --red-700:#B00D14; --red-50:#FCEBEA;
+    --charcoal:#2B2F36; --grey:#8A9099;
+    --pos:#12875A; --neg:#E2231A;
+    --c1:#E2231A; --c2:#2B2F36; --c3:#8A9099; --c4:#B00D14; --c5:#5B6472; --c6:#C2C7CF;
+    --radius:14px; --gap:16px; --shadow:0 1px 2px rgba(20,24,31,.06),0 6px 18px rgba(20,24,31,.05);
+    --font:'Segoe UI','IBM Plex Sans Thai',system-ui,-apple-system,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font);
+    background-image:radial-gradient(900px 420px at 92% -8%,rgba(226,35,26,.07),transparent 62%);
+    min-height:100vh;padding:20px 24px 28px}
+  .wrap{max-width:1480px;margin:0 auto}
+
+  /* Header */
+  header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+  .brand{display:flex;align-items:center;gap:18px}
+  .logo{display:flex;flex-direction:column;line-height:1;padding-right:18px;border-right:2px solid var(--line)}
+  .logo .mark{height:30px;width:auto;display:block}
+  .logo .tag{color:var(--muted);font-size:8px;font-weight:700;letter-spacing:3.4px;margin-top:7px;
+    text-align:center;width:100%}
+  .brand h1{font-size:19px;font-weight:700;letter-spacing:.2px;color:var(--ink)}
+  .brand p{font-size:12.5px;color:var(--muted);margin-top:3px}
+  .ctx{display:flex;align-items:center;gap:10px}
+  .chip{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:7px 12px;
+    font-size:12.5px;color:var(--muted);box-shadow:var(--shadow)}
+  .chip b{color:var(--ink);font-weight:600}
+  .chip.active{border-color:var(--red);color:var(--red);background:var(--red-50)}
+
+  /* Grid */
+  .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--gap);margin-bottom:var(--gap)}
+  .row{display:grid;gap:var(--gap);margin-bottom:var(--gap)}
+  .row.main{grid-template-columns:2fr 1fr}
+  .row.bottom{grid-template-columns:1fr 1fr 1.15fr}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px 18px;position:relative;overflow:hidden;box-shadow:var(--shadow)}
+  .card h3{font-size:11.5px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);font-weight:700;
+    display:flex;align-items:center;gap:7px}
+  .dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+
+  /* KPI card */
+  .kpi .val{font-size:30px;font-weight:750;margin-top:10px;letter-spacing:-.5px;font-variant-numeric:tabular-nums;color:var(--ink)}
+  .kpi .sub{font-size:12.5px;color:var(--muted);margin-top:6px;display:flex;align-items:center;gap:8px}
+  .delta{font-weight:700;font-size:12.5px;padding:2px 7px;border-radius:6px;font-variant-numeric:tabular-nums}
+  .delta.up{color:var(--pos);background:rgba(18,135,90,.10)}
+  .delta.down{color:var(--neg);background:var(--red-50)}
+  .kpi .accent{position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--red)}
+  .kpi.k2 .accent{background:var(--charcoal)} .kpi.k3 .accent{background:var(--red)}
+  .kpi.k4 .accent{background:var(--grey)} .kpi.k5 .accent{background:var(--charcoal)}
+
+  .bar{height:6px;border-radius:4px;background:#EDEFF2;margin-top:12px;overflow:hidden}
+  .bar > i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,var(--red),#ff5a4d)}
+
+  .chart-card{min-height:300px}
+  .chart-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .canvas-box{position:relative;height:280px}
+  .canvas-box.sm{height:230px}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:6px}
+  .legend span{display:flex;align-items:center;gap:6px}
+  .legend b{color:var(--ink)}
+
+  /* table */
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;color:var(--muted);font-weight:700;font-size:11px;text-transform:uppercase;
+    letter-spacing:.5px;padding:9px 8px;border-bottom:1px solid var(--line)}
+  td{padding:10px 8px;border-bottom:1px solid #F0F1F4;font-variant-numeric:tabular-nums;color:var(--ink)}
+  tr:last-child td{border-bottom:none}
+  td.num,th.num{text-align:right}
+  .rankbar{display:inline-block;height:6px;border-radius:3px;background:var(--red);vertical-align:middle;margin-right:8px;opacity:.85}
+
+  .loading{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;
+    color:var(--muted);font-size:14px;z-index:50;text-align:center}
+  footer{color:var(--faint);font-size:11.5px;margin-top:6px;text-align:right}
+  @media(max-width:1100px){.kpis{grid-template-columns:repeat(2,1fr)}.row.main,.row.bottom{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="loading" id="loading">กำลังดึงข้อมูลจาก mock API…</div>
+
+<div class="wrap" id="app" style="display:none">
+  <header>
+    <div class="brand">
+      <div class="logo">
+        <img class="mark" src="byd-logo.svg" alt="BYD" />
+        <span class="tag">BUILD YOUR DREAMS</span>
+      </div>
+      <div>
+        <h1>Thailand — Executive Overview</h1>
+        <p>Sales performance · units, revenue &amp; target achievement</p>
+      </div>
+    </div>
+    <div class="ctx">
+      <a class="chip" href="/" style="text-decoration:none;cursor:pointer;font-weight:600">← ⌂ หน้าหลัก</a>
+      <div class="chip active">YTD 2026</div>
+      <div class="chip">Currency: <b>THB</b></div>
+      <div class="chip">As of <b id="asof">—</b></div>
+    </div>
+  </header>
+
+  <section class="kpis" id="kpis"></section>
+
+  <div class="row main">
+    <div class="card chart-card">
+      <div class="chart-head">
+        <h3><span class="dot" style="background:var(--c1)"></span>Monthly Units &amp; Revenue vs Target</h3>
+      </div>
+      <div class="canvas-box"><canvas id="trend"></canvas></div>
+      <div class="legend">
+        <span><span class="dot" style="background:var(--c1)"></span>Units (sold)</span>
+        <span><span class="dot" style="background:var(--grey)"></span>Target units</span>
+        <span><span class="dot" style="background:var(--charcoal)"></span>Revenue (฿)</span>
+      </div>
+    </div>
+    <div class="card chart-card">
+      <div class="chart-head"><h3><span class="dot" style="background:var(--c1)"></span>Order Status</h3></div>
+      <div class="canvas-box" style="height:330px"><canvas id="status"></canvas></div>
+      <div id="statusLegend" class="legend"></div>
+    </div>
+  </div>
+
+  <div class="row bottom">
+    <div class="card chart-card">
+      <div class="chart-head"><h3><span class="dot" style="background:var(--c1)"></span>Units by Model (YTD)</h3></div>
+      <div class="canvas-box sm"><canvas id="model"></canvas></div>
+    </div>
+    <div class="card chart-card">
+      <div class="chart-head"><h3><span class="dot" style="background:var(--c1)"></span>Actual vs Target by Region</h3></div>
+      <div class="canvas-box sm"><canvas id="region"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="chart-head"><h3><span class="dot" style="background:var(--c1)"></span>Top Dealers (YTD)</h3></div>
+      <table id="dealers"><thead><tr>
+        <th>Dealer</th><th class="num">Units</th><th class="num">Revenue</th><th class="num">% of total</th>
+      </tr></thead><tbody></tbody></table>
+    </div>
+  </div>
+
+  <footer id="foot"></footer>
+</div>
+
+<script>
+const API = "/api";   // relative -> ใช้กับ server ไหนก็ได้ที่มี route /api ; ของจริงเปลี่ยนเป็น base URL ของ BYD
+const CY = 2026, PY = 2025;
+const RED="#E2231A", CHARCOAL="#2B2F36", GREY="#8A9099";
+// model ramp: แดงแบรนด์ -> ไล่เป็นเทา (พรีเมียม ไม่เป็นรุ้ง)
+const MODEL_RAMP = ["#E2231A","#C61C20","#A32A2C","#6E757E","#8A9099","#A4AAB2","#BFC4CB","#D4D8DD"];
+
+const nf = new Intl.NumberFormat("en-US");
+const fmtUnits = n => nf.format(Math.round(n));
+function fmtBaht(n){
+  const a = Math.abs(n);
+  if(a >= 1e9) return "฿"+(n/1e9).toFixed(2)+"B";
+  if(a >= 1e6) return "฿"+(n/1e6).toFixed(1)+"M";
+  if(a >= 1e3) return "฿"+(n/1e3).toFixed(0)+"K";
+  return "฿"+nf.format(Math.round(n));
+}
+const pct = n => (n>=0?"+":"")+n.toFixed(1)+"%";
+
+async function load(){
+  const [o,t] = await Promise.all([
+    fetch(`${API}/orders`).then(r=>r.json()),
+    fetch(`${API}/targets`).then(r=>r.json()),
+  ]);
+  return {orders:o.data, targets:t.data, asof:o.meta.generated_at};
+}
+
+const yr = d => +d.slice(0,4);
+const mo = d => d.slice(0,7);
+const isSold = r => r.status !== "Cancelled";
+
+function build(D){
+  const {orders, targets, asof} = D;
+  document.getElementById("asof").textContent = asof;
+
+  const ytdMonths = new Set(orders.filter(r=>yr(r.order_date)===CY).map(r=>mo(r.order_date).slice(5)));
+  const sold = orders.filter(isSold);
+  const ytd = sold.filter(r=>yr(r.order_date)===CY);
+  const pytd = sold.filter(r=>yr(r.order_date)===PY && ytdMonths.has(mo(r.order_date).slice(5)));
+
+  const unitsYTD = ytd.length, unitsPYTD = pytd.length;
+  const revYTD = ytd.reduce((s,r)=>s+r.revenue,0);
+  const revPYTD = pytd.reduce((s,r)=>s+r.revenue,0);
+  const delivered = ytd.filter(r=>r.status==="Delivered").length;
+  const backlog = ytd.filter(r=>r.status==="Booked").length;
+  const asp = revYTD/unitsYTD;
+  const targetYTD = targets.filter(t=>yr(t.month)===CY).reduce((s,t)=>s+t.target_units,0);
+  const ach = unitsYTD/targetYTD*100;
+  const yoyU = (unitsYTD-unitsPYTD)/unitsPYTD*100;
+  const yoyR = (revYTD-revPYTD)/revPYTD*100;
+
+  const kpis = [
+    {cls:"",   t:"Units Sold (YTD)", v:fmtUnits(unitsYTD), sub:`vs ${fmtUnits(unitsPYTD)} LY`, d:yoyU},
+    {cls:"k2", t:"Revenue (YTD)",    v:fmtBaht(revYTD),     sub:`vs ${fmtBaht(revPYTD)} LY`,  d:yoyR},
+    {cls:"k3", t:"Target Achievement", v:ach.toFixed(0)+"%", bar:Math.min(ach,120), sub:`${fmtUnits(unitsYTD)} / ${fmtUnits(targetYTD)} units`},
+    {cls:"k4", t:"Avg Selling Price", v:fmtBaht(asp), sub:"per unit (delivered+booked)"},
+    {cls:"k5", t:"Delivered / Backlog", v:fmtUnits(delivered), sub:`${fmtUnits(backlog)} booked in pipeline`},
+  ];
+  document.getElementById("kpis").innerHTML = kpis.map(k=>`
+    <div class="card kpi ${k.cls}">
+      <span class="accent"></span>
+      <h3>${k.t}</h3>
+      <div class="val">${k.v}</div>
+      ${k.bar!==undefined ? `<div class="bar"><i style="width:${Math.min(k.bar,100)}%"></i></div>` : ``}
+      <div class="sub">${k.d!==undefined?`<span class="delta ${k.d>=0?'up':'down'}">${pct(k.d)} YoY</span>`:``}${k.sub}</div>
+    </div>`).join("");
+
+  // trend
+  const months = [...new Set(orders.map(r=>mo(r.order_date)))].sort();
+  const uByM = {}, rByM = {}, tByM = {};
+  months.forEach(m=>{uByM[m]=0;rByM[m]=0;tByM[m]=0;});
+  sold.forEach(r=>{const m=mo(r.order_date);uByM[m]++;rByM[m]+=r.revenue;});
+  targets.forEach(t=>{tByM[t.month]=(tByM[t.month]||0)+t.target_units;});
+  const labels = months.map(m=>{const [y,mm]=m.split("-");return ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][+mm-1]+" '"+y.slice(2);});
+
+  new Chart(trend,{data:{labels,datasets:[
+    {type:"bar",label:"Units",data:months.map(m=>uByM[m]),backgroundColor:RED,borderRadius:5,yAxisID:"y",order:3,barPercentage:.7},
+    {type:"line",label:"Target",data:months.map(m=>tByM[m]),borderColor:GREY,borderDash:[6,4],borderWidth:2,pointRadius:0,yAxisID:"y",order:1},
+    {type:"line",label:"Revenue",data:months.map(m=>rByM[m]),borderColor:CHARCOAL,backgroundColor:"rgba(43,47,54,.07)",borderWidth:2.5,tension:.35,pointRadius:0,fill:true,yAxisID:"y1",order:2},
+  ]},options:baseOpts({dualAxis:true})});
+
+  // status donut
+  const st = ["Delivered","Booked","Cancelled"];
+  const stColor = {Delivered:RED, Booked:CHARCOAL, Cancelled:"#D4D8DD"};
+  const stCount = st.map(s=>orders.filter(r=>yr(r.order_date)===CY && r.status===s).length);
+  // NB: ใช้ getElementById เพราะ id "status" ชนกับ window.status (global ในตัว) ถ้าอ้างชื่อสั้นจะวาดไม่ขึ้น
+  new Chart(document.getElementById("status"),{type:"doughnut",data:{labels:st,datasets:[{data:stCount,backgroundColor:st.map(s=>stColor[s]),borderColor:"#fff",borderWidth:3}]},
+    options:{cutout:"66%",plugins:{legend:{display:false},tooltip:tt()},maintainAspectRatio:false}});
+  const totSt = stCount.reduce((a,b)=>a+b,0);
+  document.getElementById("statusLegend").innerHTML = st.map((s,i)=>
+    `<span><span class="dot" style="background:${stColor[s]}"></span>${s} · <b>${(stCount[i]/totSt*100).toFixed(0)}%</b></span>`).join("");
+
+  // units by model (red->grey ramp)
+  const models = {};
+  ytd.forEach(r=>models[r.model]=(models[r.model]||0)+1);
+  const mEnt = Object.entries(models).sort((a,b)=>b[1]-a[1]);
+  new Chart(model,{type:"bar",data:{labels:mEnt.map(e=>e[0]),datasets:[{data:mEnt.map(e=>e[1]),
+    backgroundColor:mEnt.map((_,i)=>MODEL_RAMP[Math.min(i,MODEL_RAMP.length-1)]),borderRadius:5}]},
+    options:baseOpts({horizontal:true})});
+
+  // actual vs target by region
+  const regs = [...new Set(orders.map(r=>r.region))].sort();
+  const aReg = {}, tReg = {};
+  regs.forEach(r=>{aReg[r]=0;tReg[r]=0;});
+  ytd.forEach(r=>aReg[r.region]++);
+  targets.filter(t=>yr(t.month)===CY).forEach(t=>tReg[t.region]+=t.target_units);
+  new Chart(region,{type:"bar",data:{labels:regs,datasets:[
+    {label:"Actual",data:regs.map(r=>aReg[r]),backgroundColor:RED,borderRadius:4,barPercentage:.8,categoryPercentage:.62},
+    {label:"Target",data:regs.map(r=>tReg[r]),backgroundColor:"#CBD0D6",borderRadius:4,barPercentage:.8,categoryPercentage:.62},
+  ]},options:baseOpts({grouped:true})});
+
+  // top dealers
+  const dl = {};
+  ytd.forEach(r=>{const k=r.dealer_name;dl[k]=dl[k]||{u:0,r:0};dl[k].u++;dl[k].r+=r.revenue;});
+  const dEnt = Object.entries(dl).sort((a,b)=>b[1].u-a[1].u).slice(0,7);
+  const maxU = dEnt[0][1].u;
+  document.querySelector("#dealers tbody").innerHTML = dEnt.map(([n,v])=>`
+    <tr><td><span class="rankbar" style="width:${v.u/maxU*42}px"></span>${n}</td>
+    <td class="num">${fmtUnits(v.u)}</td><td class="num">${fmtBaht(v.r)}</td>
+    <td class="num">${(v.u/unitsYTD*100).toFixed(1)}%</td></tr>`).join("");
+
+  document.getElementById("foot").textContent =
+    `Mock data · ${fmtUnits(orders.length)} orders · source: ${API}/orders · grain: order-level`;
+}
+
+const GRID="#EAECEF", TICK="#697079";
+function tt(){return{backgroundColor:"#fff",borderColor:"#E2E4E9",borderWidth:1,padding:10,titleColor:"#171A1F",bodyColor:"#3A4049",displayColors:true}}
+function baseOpts(o={}){
+  const opt={maintainAspectRatio:false,plugins:{legend:{display:!!o.grouped,labels:{color:TICK,boxWidth:10,font:{size:11}}},tooltip:tt()},
+    scales:{x:{grid:{display:false},ticks:{color:TICK,font:{size:11}}},
+            y:{grid:{color:GRID},ticks:{color:TICK,font:{size:11}},beginAtZero:true}}};
+  if(o.horizontal){opt.indexAxis="y";opt.scales.x.grid.color=GRID;opt.scales.y.grid.display=false;}
+  if(o.dualAxis){opt.scales.y1={position:"right",grid:{display:false},beginAtZero:true,
+    ticks:{color:TICK,font:{size:11},callback:v=>fmtBaht(v)}};}
+  return opt;
+}
+
+load().then(D=>{
+  document.getElementById("loading").style.display="none";
+  document.getElementById("app").style.display="block";
+  build(D);
+}).catch(e=>{
+  document.getElementById("loading").innerHTML =
+    `เชื่อมต่อ API ไม่ได้ — รัน <code style="color:#E2231A">python serve.py</code> ในโฟลเดอร์ mock-api ก่อน<br><br><small style="color:#9aa1ab">${e}</small>`;
+});
+</script>
+</body>
+</html>

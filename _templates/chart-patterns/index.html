@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Chart-Pattern Catalog</title>
+<link rel="stylesheet" href="../../_design-system/tokens.css" />
+<link rel="stylesheet" href="../../_design-system/components.css" />
+<link rel="stylesheet" href="../../_design-system/skins/skins.css" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="../../_design-system/charts.js"></script>
+<style>
+  .sec{font-size:12px;font-weight:800;letter-spacing:1.2px;color:var(--accent);text-transform:uppercase;
+    margin:22px 0 12px;display:flex;align-items:center;gap:10px}
+  .sec::after{content:"";flex:1;height:1px;background:var(--line)}
+  .cat{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--gap)}
+  @media(max-width:1200px){.cat{grid-template-columns:repeat(3,1fr)}}
+  @media(max-width:900px){.cat{grid-template-columns:repeat(2,1fr)}}
+  .pat{min-height:230px;display:flex;flex-direction:column}
+  .pat .hd{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+  .pat .ttl{font-size:13px;font-weight:700;color:var(--ink)}
+  .pat .pbi{font-size:9.5px;font-weight:700;letter-spacing:.3px;color:var(--muted);
+    border:1px solid var(--line);border-radius:5px;padding:2px 6px;white-space:nowrap}
+  .pat .viz{flex:1;position:relative;min-height:120px}
+  .pat .use{font-size:11.5px;color:var(--muted);margin-top:8px;line-height:1.45}
+  /* css-based viz */
+  .bullet{display:flex;flex-direction:column;gap:14px;justify-content:center;height:100%}
+  .bullet .track{position:relative;height:18px;border-radius:5px;background:var(--grid)}
+  .bullet .band{position:absolute;top:0;bottom:0;border-radius:5px;background:var(--line)}
+  .bullet .meas{position:absolute;top:4px;bottom:4px;left:0;border-radius:4px;background:var(--accent)}
+  .bullet .tgt{position:absolute;top:-3px;bottom:-3px;width:3px;background:var(--ink)}
+  .bullet small{font-size:10.5px;color:var(--muted)}
+  .heat{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;height:100%;align-content:center}
+  .heat i{aspect-ratio:1;border-radius:4px;background:var(--accent)}
+  .cal{display:grid;grid-template-columns:repeat(13,1fr);gap:3px;height:100%;align-content:center}
+  .cal i{aspect-ratio:1;border-radius:2px;background:var(--accent)}
+  .tree{display:flex;flex-wrap:wrap;gap:4px;height:100%;align-content:stretch}
+  .tree i{border-radius:6px;display:flex;align-items:flex-end;padding:6px;font-size:10px;font-weight:700;
+    color:#fff;overflow:hidden}
+  .kpiwrap{display:flex;flex-direction:column;justify-content:center;height:100%}
+  .kpiwrap .big{font-size:34px;font-weight:750;color:var(--ink);font-variant-numeric:tabular-nums}
+  .kpiwrap .row{display:flex;align-items:center;gap:8px;margin-top:6px}
+  .prog{display:flex;flex-direction:column;gap:12px;justify-content:center;height:100%}
+  .prog .lab{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:4px}
+</style>
+</head>
+<body class="skin-finance-dark">
+<div class="wrap">
+  <header class="ds-header">
+    <div class="brand">
+      <div class="logo"><span class="mark">VIZ</span><span class="tag">PATTERN CATALOG</span></div>
+      <div>
+        <h1>Chart-Pattern Catalog <span class="tag-pill">Reference</span></h1>
+        <p>คำศัพท์ภาพของสาย Data Analytics — ทุกชนิดกราฟ + ใช้เมื่อไหร่ + map Power BI · สลับ skin ได้</p>
+      </div>
+    </div>
+    <div class="ctx">
+      <select class="skin-select" id="skin" onchange="DS.setSkin(this.value)">
+        <option value="finance-dark">Skin: Finance Dark</option>
+        <option value="byd-red">Skin: BYD Red</option>
+        <option value="saas-violet">Skin: SaaS Violet</option>
+        <option value="luxury-gold">Skin: Luxury Gold</option>
+        <option value="command-center">Skin: Command Center</option>
+      </select>
+    </div>
+  </header>
+
+  <div class="sec">Trend over time</div>
+  <div class="cat">
+    <div class="card pat"><div class="hd"><span class="ttl">Line</span><span class="pbi">PBI: Line chart</span></div><div class="viz"><canvas id="c_line"></canvas></div><div class="use">เทรนด์ของค่าเดียวตามเวลา — ดูทิศทาง ขึ้น/ลง</div></div>
+    <div class="card pat"><div class="hd"><span class="ttl">Area</span><span class="pbi">PBI: Area chart</span></div><div class="viz"><canvas id="c_area"></canvas></div><div class="use">เน้น "ปริมาณสะสม" ตามเวลา</div></div>
+    <div class="card pat"><div class="hd"><span class="ttl">Combo (col + line)</span><span class="pbi">PBI: Line & clustered column</span></div><div class="viz"><canvas id="c_combo"></canvas></div><div class="use">2 measure คนละสเกล (เช่น คัน + รายได้)</div></div>
+    <div class="card pat"><div class="hd"><span class="ttl">Sparkline</span><span class="pbi">PBI: in-table sparkline</span></div><div class="viz"><canvas id="c_spark"></canvas></div><div class="use">เทรนด์จิ๋วในการ์ด/ตาราง ไม่ต้องมีแกน</div></div>
+  </div>
+
+  <div class="sec">Compare</div>
+  <div class="cat">
+    <div class="card pat"><div class="hd"><span class="ttl">Clustered column</span><span class="pbi">PBI: Clustered column</span></div><div class="viz"><canvas id="c_col"></canvas></div><div class="use">เทียบหมวดน้อย ๆ หรือ actual vs target</div></div>
+    <div class="card pat"><div class="hd"><span class="ttl">Horizontal bar</span><span class="pbi">PBI: Clustered bar</span></div><div class="viz"><canvas id="c_bar"></canvas></div><div class="use">เทียบหมวดเยอะ/ชื่อยาว — อ่านง่ายกว่าตั้ง</div></div>
+    <div class="card pat"><div class="hd"><span class="ttl">Bullet (vs target)</span><span class="pbi">PBI: KPI / bullet visual</span></div><div class="viz"><div class="bullet" id="c_bullet"></div></div><div class="use">ค่าจริงเทียบเป้า + เกณฑ์ดี/กลาง/แย่</div></div>
+    <div class="card pat"><div class="hd"><span class="ttl">Ranked bar</span><span class="pbi">PBI: Bar + Top N</span></div><div class="viz"><canvas id="c_rank"></canvas></div><div class="use">จัดอันดับ entity จากมาก→น้อย</div></div>
+  </div>
+
+  <div class="sec">Part-to-whole</div>
+  <div class="cat">
+    <div class="card pat"><div class="hd"><span class="ttl">Donut</span><span class="pbi">PBI: Donut</span></div><div class="viz"><canvas id="c_donut"></canvas></div><div class="use">สัดส่วน 2–5 หมวด (เกินนั้นอ่านยาก)</div></div>
+    <div class="card pat"><div class="hd"><span class="ttl">Stacked column</span><span class="pbi">PBI: Stacked column</span></div><div class="viz"><canvas id="c_stack"></canvas></div><div class="use">องค์ประกอบของแต่ละหมวด (ค่าจริง)</div></div>
+    <div class="card pat"><div class="hd"><span class="ttl">100% stacked</span><span class="pbi">PBI: 100% stacked column</span></div><div class="viz"><canvas id="c_stack100"></canvas></div><div class="use">เทียบ "สัดส่วน" ระหว่างหมวด</div></div>
+    <div class="card pat"><div class="hd"><span class="ttl">Treemap</span><span class="pbi">PBI: Treemap</span></div><div class="viz"><div class="tree" id="c_tree"></div></div><div class="use">สัดส่วน/ลำดับชั้น เมื่อหมวดเยอะ</div></div>
+  </div>
+
+  <div class="sec">Distribution & relationship</div>
+  <div class="cat">
+    <div class="card pat"><div class="hd"><span class="ttl">Histogram</span><span class="pbi">PBI: Column (binned)</span></div><div class="viz"><canvas id="c_hist"></canvas></div><div class="use">การกระจายของ measure เดียว</div></div>
+    <div class="card pat"><div class="hd"><span class="ttl">Scatter</span><span class="pbi">PBI: Scatter chart</span></div><div class="viz"><canvas id="c_scatter"></canvas></div><div class="use">ความสัมพันธ์ 2 measure</div></div>
+    <div class="card pat"><div class="hd"><span class="ttl">Bubble</span><span class="pbi">PBI: Scatter (size)</span></div><div class="viz"><canvas id="c_bubble"></canvas></div><div class="use">3 measure — x, y, ขนาด</div></div>
+    <div class="card pat"><div class="hd"><span class="ttl">Heatmap / matrix</span><span class="pbi">PBI: Matrix + cond. format</span></div><div class="viz"><div class="heat" id="c_heat"></div></div><div class="use">ความเข้มข้นข้าม 2 มิติ (เช่น วัน×ชม.)</div></div>
+  </div>
+
+  <div class="sec">Flow & process</div>
+  <div class="cat">
+    <div class="card pat"><div class="hd"><span class="ttl">Funnel</span><span class="pbi">PBI: Funnel</span></div><div class="viz"><canvas id="c_funnel"></canvas></div><div class="use">drop-off ตาม stage (visitor→paid)</div></div>
+    <div class="card pat"><div class="hd"><span class="ttl">Waterfall</span><span class="pbi">PBI: Waterfall</span></div><div class="viz"><canvas id="c_wf"></canvas></div><div class="use">ยอดต้น→ปลาย ผ่าน +/- (P&L, variance)</div></div>
+    <div class="card pat"><div class="hd"><span class="ttl">Cohort retention</span><span class="pbi">PBI: Line (by cohort)</span></div><div class="viz"><canvas id="c_cohort"></canvas></div><div class="use">การคงอยู่ของกลุ่มตามสัปดาห์/เดือน</div></div>
+    <div class="card pat"><div class="hd"><span class="ttl">Calendar heatmap</span><span class="pbi">PBI: Matrix / custom</span></div><div class="viz"><div class="cal" id="c_cal"></div></div><div class="use">กิจกรรมรายวันตลอดช่วงเวลา</div></div>
+  </div>
+
+  <div class="sec">KPI & geo</div>
+  <div class="cat">
+    <div class="card pat"><div class="hd"><span class="ttl">KPI card</span><span class="pbi">PBI: Card (new)</span></div><div class="viz"><div class="kpiwrap" id="c_kpi"></div></div><div class="use">ค่าเดียวเด่น + เทียบงวด (YoY)</div></div>
+    <div class="card pat"><div class="hd"><span class="ttl">Gauge</span><span class="pbi">PBI: Gauge</span></div><div class="viz"><canvas id="c_gauge"></canvas></div><div class="use">ความคืบหน้าเทียบเป้า (0–100%)</div></div>
+    <div class="card pat"><div class="hd"><span class="ttl">Progress bars</span><span class="pbi">PBI: Bar + data label</span></div><div class="viz"><div class="prog" id="c_prog"></div></div><div class="use">หลาย KPI เทียบเป้าพร้อมกัน</div></div>
+    <div class="card pat"><div class="hd"><span class="ttl">Bubble map</span><span class="pbi">PBI: Map (bubble)</span></div><div class="viz"><canvas id="c_geo"></canvas></div><div class="use">ค่าตามตำแหน่งภูมิศาสตร์</div></div>
+  </div>
+
+  <footer>Pattern Catalog · _design-system · ทุกชิ้น live + reskin ได้ · map กับ Power BI native (custom visual ที่ต้องลงเพิ่ม: Treemap, บาง Gauge, Calendar)</footer>
+</div>
+
+<script>
+const f = DS.fmt;
+const months6 = ["Jan","Feb","Mar","Apr","May","Jun"];
+const seq = [42,38,55,49,63,71];
+const opts = (o={}) => { const x = DS.baseOpts(o); x.plugins.legend.display = false; return x; };
+const mini = () => { const x = opts(); x.scales.x.display=false; x.scales.y.display=false; return x; };
+
+// ---- Chart.js patterns ----
+DS.add("c_line", el => new Chart(el,{type:"line",data:{labels:months6,datasets:[{data:seq,borderColor:DS.C('c1'),borderWidth:2.5,tension:.35,pointRadius:0}]},options:opts({zero:false})}));
+DS.add("c_area", el => new Chart(el,{type:"line",data:{labels:months6,datasets:[{data:seq,borderColor:DS.C('c1'),backgroundColor:DS.cssVar('--accent-soft'),fill:true,borderWidth:2,tension:.35,pointRadius:0}]},options:opts()}));
+DS.add("c_combo", el => new Chart(el,{data:{labels:months6,datasets:[
+  {type:"bar",data:seq,backgroundColor:DS.C('c1'),borderRadius:4,yAxisID:"y"},
+  {type:"line",data:seq.map(v=>v*1.6e6),borderColor:DS.C('c2'),borderWidth:2,pointRadius:0,yAxisID:"y1"}]},
+  options:opts({dualAxis:true})}));
+DS.add("c_spark", el => new Chart(el,{type:"line",data:{labels:seq.map((_,i)=>i),datasets:[{data:seq,borderColor:DS.C('c1'),borderWidth:2,tension:.4,pointRadius:0}]},options:mini()}));
+
+DS.add("c_col", el => new Chart(el,{type:"bar",data:{labels:["A","B","C","D"],datasets:[
+  {data:[62,48,55,40],backgroundColor:DS.C('c1'),borderRadius:4},
+  {data:[58,52,50,44],backgroundColor:DS.C('c3'),borderRadius:4}]},options:opts()}));
+DS.add("c_bar", el => new Chart(el,{type:"bar",data:{labels:["Dolphin","Atto 3","Seal","M6","Han"],datasets:[{data:[214,212,168,95,49],backgroundColor:DS.C('c1'),borderRadius:4}]},options:opts({horizontal:true})}));
+DS.add("c_rank", el => new Chart(el,{type:"bar",data:{labels:["BKK","Nonthaburi","Chonburi","Korat","Phuket"],datasets:[{data:[412,188,164,138,109],backgroundColor:DS.colors().slice(0,5),borderRadius:4}]},options:opts({horizontal:true})}));
+
+DS.add("c_donut", el => new Chart(el,{type:"doughnut",data:{labels:["A","B","C"],datasets:[{data:[66,29,6],backgroundColor:[DS.C('c1'),DS.C('c2'),DS.C('c6')],borderColor:DS.cssVar('--card'),borderWidth:3}]},options:{cutout:"62%",maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:DS.tooltip()}}}));
+DS.add("c_stack", el => new Chart(el,{type:"bar",data:{labels:["Q1","Q2","Q3","Q4"],datasets:[
+  {data:[20,28,24,30],backgroundColor:DS.C('c1')},{data:[14,16,18,20],backgroundColor:DS.C('c2')},{data:[8,10,9,12],backgroundColor:DS.C('c3')}]},options:opts({stacked:true})}));
+DS.add("c_stack100", el => { const a=[20,28,24,30],b=[14,16,18,20],c=[8,10,9,12];
+  const pct=(arr,i)=>arr[i]/(a[i]+b[i]+c[i])*100;
+  return new Chart(el,{type:"bar",data:{labels:["Q1","Q2","Q3","Q4"],datasets:[
+    {data:a.map((_,i)=>pct(a,i)),backgroundColor:DS.C('c1')},
+    {data:b.map((_,i)=>pct(b,i)),backgroundColor:DS.C('c2')},
+    {data:c.map((_,i)=>pct(c,i)),backgroundColor:DS.C('c3')}]},options:opts({stacked:true})});});
+
+DS.add("c_hist", el => new Chart(el,{type:"bar",data:{labels:["0","1","2","3","4","5","6","7","8"],datasets:[{data:[2,5,9,15,21,17,11,6,3],backgroundColor:DS.C('c1')}]},options:(()=>{const x=opts();x.scales.x.grid.display=false;return x;})()}));
+DS.add("c_scatter", el => new Chart(el,{type:"scatter",data:{datasets:[{data:Array.from({length:24},(_,i)=>({x:i+ (i%3), y:i*1.4+(i%4)*3})),backgroundColor:DS.C('c1')}]},options:opts({zero:false})}));
+DS.add("c_bubble", el => new Chart(el,{type:"bubble",data:{datasets:[{data:[{x:10,y:20,r:8},{x:18,y:34,r:14},{x:26,y:24,r:6},{x:34,y:44,r:18},{x:42,y:30,r:10}],backgroundColor:DS.colors().slice(0,5).map(c=>c)}]},options:opts({zero:false})}));
+
+DS.add("c_funnel", el => new Chart(el,{type:"bar",data:{labels:["Visit","Signup","Trial","Paid"],datasets:[{data:[128,52,31,18],backgroundColor:DS.colors().slice(0,4),borderRadius:4}]},options:opts({horizontal:true})}));
+DS.add("c_wf", el => { const base=[0,40,0,18,0],delta=[100,60,40,22,18],type=["t","n","t","n","t"];
+  return new Chart(el,{type:"bar",data:{labels:["Rev","COGS","GP","OpEx","Net"],datasets:[
+    {data:base,backgroundColor:"transparent",stack:"w"},
+    {data:delta,backgroundColor:type.map(t=>t==="t"?DS.C('accent'):DS.C('neg')),borderRadius:3,stack:"w"}]},
+    options:(()=>{const x=opts();x.scales.x.stacked=true;x.scales.y.stacked=true;return x;})()});});
+DS.add("c_cohort", el => new Chart(el,{type:"line",data:{labels:["W0","W1","W2","W3","W4","W5"],datasets:[
+  {data:[100,62,48,41,37,34],borderColor:DS.C('c1'),borderWidth:2,tension:.35,pointRadius:0},
+  {data:[100,66,53,46,42,39],borderColor:DS.C('c2'),borderWidth:2,tension:.35,pointRadius:0},
+  {data:[100,71,59,52,48,45],borderColor:DS.C('c3'),borderWidth:2,borderDash:[4,3],tension:.35,pointRadius:0}]},options:opts({zero:false})}));
+
+DS.add("c_gauge", el => new Chart(el,{type:"doughnut",data:{datasets:[{data:[72,28],backgroundColor:[DS.C('accent'),DS.cssVar('--grid')],borderWidth:0}]},
+  options:{rotation:-90,circumference:180,cutout:"72%",maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{enabled:false}}}}));
+
+// bubble "map": ตำแหน่งคร่าว ๆ คล้ายไทย, ขนาด=ค่า
+DS.add("c_geo", el => new Chart(el,{type:"bubble",data:{datasets:[{data:[
+  {x:30,y:78,r:20},{x:34,y:70,r:9},{x:48,y:52,r:7},{x:64,y:60,r:8},{x:60,y:34,r:6},{x:24,y:30,r:6}],
+  backgroundColor:DS.C('c1')}]},options:(()=>{const x=mini();return x;})()}));
+
+// ---- CSS patterns (reskin ผ่าน var() อัตโนมัติ ; rebuild ใน renderAll override เฉพาะที่ใช้ opacity scale) ----
+function cssViz(){
+  // bullet
+  document.getElementById("c_bullet").innerHTML = [["Revenue",78,90],["Margin",62,70]].map(([n,v,t])=>`
+    <div><small>${n}</small><div class="track"><span class="band" style="width:${t}%"></span>
+    <span class="meas" style="width:${v}%"></span><span class="tgt" style="left:${t}%"></span></div></div>`).join("");
+  // treemap (สัดส่วน + สี categorical)
+  const tree=[["EV",46],["Service",22],["Parts",16],["Acc",10],["Other",6]];
+  document.getElementById("c_tree").innerHTML = tree.map((d,i)=>`
+    <i style="flex:${d[1]} 1 ${d[1]*2}px;min-width:54px;background:var(--c${i+1})">${d[0]}</i>`).join("");
+  // heatmap 7x5 — ความเข้มด้วย opacity ของ accent
+  const heat=Array.from({length:35},(_,i)=>0.15+((i*7%11)/11)*0.85);
+  document.getElementById("c_heat").innerHTML = heat.map(o=>`<i style="opacity:${o.toFixed(2)}"></i>`).join("");
+  // calendar 13x7
+  const cal=Array.from({length:91},(_,i)=>0.1+(((i*13)%17)/17)*0.9);
+  document.getElementById("c_cal").innerHTML = cal.map(o=>`<i style="opacity:${o.toFixed(2)}"></i>`).join("");
+  // KPI card
+  document.getElementById("c_kpi").innerHTML = `<div class="big">฿1.12B</div>
+    <div class="row"><span class="delta up">+32.9% YoY</span><span style="font-size:11.5px;color:var(--muted)">vs ฿840M</span></div>`;
+  // progress
+  document.getElementById("c_prog").innerHTML = [["Sales",96],["NPS",78],["Uptime",99]].map(([n,v])=>`
+    <div><div class="lab"><span>${n}</span><b style="color:var(--ink)">${v}%</b></div>
+    <div class="bar"><i style="width:${v}%"></i></div></div>`).join("");
+}
+
+const _r = DS.renderAll; DS.renderAll = function(){ _r(); cssViz(); };
+const qSkin = new URLSearchParams(location.search).get("skin");
+if(qSkin){ document.body.className="skin-"+qSkin; const s=document.getElementById("skin"); if(s) s.value=qSkin; }
+DS.renderAll();
+</script>
+</body>
+</html>

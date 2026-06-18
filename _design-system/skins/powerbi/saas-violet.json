@@ -1,0 +1,37 @@
+{
+  "name": "DS · SaaS Violet",
+  "_skin": "saas-violet",
+  "dataColors": [
+    "#6D5CF6", "#22C3A6", "#FF8A65", "#3D7DF6", "#F2B53C",
+    "#E0668F", "#1B1A2E", "#9AA1AB"
+  ],
+  "background": "#FFFFFF",
+  "secondaryBackground": "#F7F7FB",
+  "foreground": "#1B1A2E",
+  "foregroundNeutralSecondary": "#6E6B85",
+  "tableAccent": "#6D5CF6",
+  "good": "#109C6E",
+  "neutral": "#9AA1AB",
+  "bad": "#E5484D",
+  "maximum": "#6D5CF6",
+  "minimum": "#F7F7FB",
+  "textClasses": {
+    "title":   { "fontFace": "Segoe UI Semibold", "fontSize": 13, "color": "#1B1A2E" },
+    "header":  { "fontFace": "Segoe UI Semibold", "fontSize": 11, "color": "#6E6B85" },
+    "label":   { "fontFace": "Segoe UI", "fontSize": 10, "color": "#6E6B85" },
+    "callout": { "fontFace": "Segoe UI", "fontSize": 28, "color": "#1B1A2E" }
+  },
+  "visualStyles": {
+    "*": {
+      "*": {
+        "background": [{ "show": true, "color": { "solid": { "color": "#FFFFFF" } }, "transparency": 0 }],
+        "border":     [{ "show": true, "color": { "solid": { "color": "#ECECF4" } }, "radius": 12 }],
+        "visualHeader": [{ "show": true, "background": { "solid": { "color": "#FFFFFF" } }, "foreground": { "solid": { "color": "#6E6B85" } } }],
+        "title": [{ "show": true, "fontColor": { "solid": { "color": "#1B1A2E" } }, "fontSize": 12, "fontFamily": "Segoe UI Semibold", "alignment": "left" }]
+      }
+    },
+    "page": {
+      "*": { "background": [{ "color": { "solid": { "color": "#F7F7FB" } }, "transparency": 0 }] }
+    }
+  }
+}

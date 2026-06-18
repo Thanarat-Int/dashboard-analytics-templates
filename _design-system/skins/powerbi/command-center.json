@@ -1,0 +1,37 @@
+{
+  "name": "DS · Command Center",
+  "_skin": "command-center",
+  "dataColors": [
+    "#19E3C4", "#2FA8FF", "#FFC857", "#B36BFF", "#FF5C7A",
+    "#43E0FF", "#6C8398", "#7CF5B0"
+  ],
+  "background": "#0E141C",
+  "secondaryBackground": "#070A0F",
+  "foreground": "#DCEAF5",
+  "foregroundNeutralSecondary": "#6C8398",
+  "tableAccent": "#19E3C4",
+  "good": "#19E3A0",
+  "neutral": "#6C8398",
+  "bad": "#FF5C7A",
+  "maximum": "#19E3C4",
+  "minimum": "#070A0F",
+  "textClasses": {
+    "title":   { "fontFace": "Segoe UI Semibold", "fontSize": 13, "color": "#DCEAF5" },
+    "header":  { "fontFace": "Segoe UI Semibold", "fontSize": 11, "color": "#6C8398" },
+    "label":   { "fontFace": "Segoe UI", "fontSize": 10, "color": "#6C8398" },
+    "callout": { "fontFace": "Segoe UI", "fontSize": 28, "color": "#DCEAF5" }
+  },
+  "visualStyles": {
+    "*": {
+      "*": {
+        "background": [{ "show": true, "color": { "solid": { "color": "#0E141C" } }, "transparency": 0 }],
+        "border":     [{ "show": true, "color": { "solid": { "color": "#1B2A38" } }, "radius": 10 }],
+        "visualHeader": [{ "show": true, "background": { "solid": { "color": "#0E141C" } }, "foreground": { "solid": { "color": "#6C8398" } } }],
+        "title": [{ "show": true, "fontColor": { "solid": { "color": "#DCEAF5" } }, "fontSize": 12, "fontFamily": "Segoe UI Semibold", "alignment": "left" }]
+      }
+    },
+    "page": {
+      "*": { "background": [{ "color": { "solid": { "color": "#070A0F" } }, "transparency": 0 }] }
+    }
+  }
+}

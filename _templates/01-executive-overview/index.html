@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Template · Executive Overview</title>
+<link rel="stylesheet" href="../../_design-system/tokens.css" />
+<link rel="stylesheet" href="../../_design-system/components.css" />
+<link rel="stylesheet" href="../../_design-system/skins/skins.css" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="../../_design-system/charts.js"></script>
+</head>
+<body class="skin-byd-red">
+<div class="wrap">
+  <header class="ds-header">
+    <div class="brand">
+      <div class="logo"><span class="mark">ACME</span><span class="tag">ANALYTICS</span></div>
+      <div>
+        <h1>Executive Overview <span class="tag-pill">Template</span></h1>
+        <p>Archetype 01 · monitor — KPI + trend + breakdown (data swappable)</p>
+      </div>
+    </div>
+    <div class="ctx">
+      <select class="skin-select" id="skin" onchange="DS.setSkin(this.value)">
+        <option value="byd-red">Skin: BYD Red</option>
+        <option value="finance-dark">Skin: Finance Dark</option>
+        <option value="saas-violet">Skin: SaaS Violet</option>
+        <option value="luxury-gold">Skin: Luxury Gold</option>
+        <option value="command-center">Skin: Command Center</option>
+      </select>
+      <div class="chip active">YTD</div>
+      <div class="chip">As of <b>Dec 2025</b></div>
+    </div>
+  </header>
+
+  <section class="kpis" id="kpis"></section>
+
+  <div class="row c-21">
+    <div class="card chart-card">
+      <div class="chart-head"><h3><span class="dot"></span>Revenue &amp; Units vs Target</h3></div>
+      <div class="canvas-box"><canvas id="trend"></canvas></div>
+      <div class="legend" id="trendLegend"></div>
+    </div>
+    <div class="card chart-card">
+      <div class="chart-head"><h3><span class="dot"></span>Status Mix</h3></div>
+      <div class="canvas-box lg"><canvas id="status"></canvas></div>
+      <div class="legend" id="statusLegend"></div>
+    </div>
+  </div>
+
+  <div class="row c-211">
+    <div class="card chart-card">
+      <div class="chart-head"><h3><span class="dot"></span>By Category</h3></div>
+      <div class="canvas-box sm"><canvas id="cat"></canvas></div>
+    </div>
+    <div class="card chart-card">
+      <div class="chart-head"><h3><span class="dot"></span>Actual vs Target by Region</h3></div>
+      <div class="canvas-box sm"><canvas id="region"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="chart-head"><h3><span class="dot"></span>Top Performers</h3></div>
+      <table id="top"><thead><tr><th>Entity</th><th class="num">Units</th><th class="num">Revenue</th><th class="num">Share</th></tr></thead><tbody></tbody></table>
+    </div>
+  </div>
+  <footer>Template · _design-system tokens + components + skins · inline demo data</footer>
+</div>
+
+<script>
+// ---------- demo data (สลับเป็นของจริงได้ทันที โครงไม่เปลี่ยน) ----------
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const units  = [106,108,137,118,124,157,135,140,165,153,158,217];
+const target = [110,112,140,124,128,150,142,150,168,160,165,205];
+const price  = 1109055;
+const revenue = units.map(u => u*price*(0.96+ (u%5)*0.01));
+const statusMix = {labels:["Delivered","Booked","Cancelled"], data:[703,306,61]};
+const cats = [["Dolphin",214],["Atto 3",212],["Seal",168],["Seal U",118],["Sealion 6",112],["M6",95],["Tang",51],["Han",49]];
+const regions = ["Central","East","North","Northeast","South","West"];
+const regActual = [389,168,134,146,98,57];
+const regTarget = [408,165,148,150,106,55];
+const leaders = [["BYD Nonthaburi",105,116.5],["BYD Ratchayothin",98,111.2],["BYD Rama III",95,107.1],["BYD Bangna",92,100.5],["BYD Rayong",91,97.4],["BYD Pattaya",84,96.8],["BYD Korat",76,80.6]];
+
+const sum = a => a.reduce((x,y)=>x+y,0);
+const f = DS.fmt;
+
+// ---------- KPIs ----------
+const uYTD=sum(units), uPY=759, rYTD=sum(revenue), rPY=839.6e6, tYTD=sum(target);
+const kpis=[
+  {t:"Revenue (YTD)", v:f.abbr(rYTD,'฿'), d:(rYTD-rPY)/rPY*100, sub:`vs ${f.abbr(rPY,'฿')} LY`},
+  {t:"Units Sold (YTD)", v:f.num(uYTD), d:(uYTD-uPY)/uPY*100, sub:`vs ${f.num(uPY)} LY`},
+  {t:"Target Achievement", v:Math.round(uYTD/tYTD*100)+"%", bar:Math.min(uYTD/tYTD*100,100), sub:`${f.num(uYTD)} / ${f.num(tYTD)}`},
+  {t:"Avg Selling Price", v:f.abbr(rYTD/uYTD,'฿'), sub:"per unit"},
+  {t:"Delivered / Backlog", v:f.num(statusMix.data[0]), sub:`${f.num(statusMix.data[1])} in pipeline`},
+];
+document.getElementById("kpis").innerHTML = kpis.map(k=>`
+  <div class="card kpi"><span class="accent"></span><h3>${k.t}</h3>
+  <div class="val">${k.v}</div>
+  ${k.bar!==undefined?`<div class="bar"><i style="width:${k.bar}%"></i></div>`:``}
+  <div class="sub">${k.d!==undefined?`<span class="delta ${k.d>=0?'up':'down'}">${f.pct(k.d)} YoY</span>`:``}${k.sub}</div></div>`).join("");
+
+// ---------- charts (อ้าง DS.colors()/DS.C() ตอน build -> reskin แล้วสีตามทันที) ----------
+DS.add("trend", el => new Chart(el,{data:{labels:MONTHS,datasets:[
+  {type:"bar",label:"Units",data:units,backgroundColor:DS.C('c1'),borderRadius:5,yAxisID:"y",order:3,barPercentage:.7},
+  {type:"line",label:"Target",data:target,borderColor:DS.C('c3'),borderDash:[6,4],borderWidth:2,pointRadius:0,yAxisID:"y",order:1},
+  {type:"line",label:"Revenue",data:revenue,borderColor:DS.C('c2'),borderWidth:2.5,tension:.35,pointRadius:0,yAxisID:"y1",order:2},
+]},options:DS.baseOpts({dualAxis:true})}));
+
+DS.add("status", el => new Chart(el,{type:"doughnut",data:{labels:statusMix.labels,
+  datasets:[{data:statusMix.data,backgroundColor:[DS.C('c1'),DS.C('c2'),DS.C('c6')],borderColor:DS.cssVar('--card'),borderWidth:3}]},
+  options:{cutout:"66%",maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:DS.tooltip()}}}));
+
+DS.add("cat", el => new Chart(el,{type:"bar",data:{labels:cats.map(c=>c[0]),
+  datasets:[{data:cats.map(c=>c[1]),backgroundColor:cats.map((_,i)=>DS.colors()[Math.min(i,7)]),borderRadius:5}]},
+  options:DS.baseOpts({horizontal:true})}));
+
+DS.add("region", el => new Chart(el,{type:"bar",data:{labels:regions,datasets:[
+  {label:"Actual",data:regActual,backgroundColor:DS.C('c1'),borderRadius:4,categoryPercentage:.62},
+  {label:"Target",data:regTarget,backgroundColor:DS.C('c3'),borderRadius:4,categoryPercentage:.62},
+]},options:DS.baseOpts({legend:true})}));
+
+// ---------- legends + table ----------
+function legends(){
+  const tl=[["Units",DS.C('c1')],["Target",DS.C('c3')],["Revenue",DS.C('c2')]];
+  document.getElementById("trendLegend").innerHTML = tl.map(([n,c])=>`<span><span class="dot" style="background:${c}"></span>${n}</span>`).join("");
+  const tot=sum(statusMix.data);
+  document.getElementById("statusLegend").innerHTML = statusMix.labels.map((s,i)=>
+    `<span><span class="dot" style="background:${[DS.C('c1'),DS.C('c2'),DS.C('c6')][i]}"></span>${s} · <b>${Math.round(statusMix.data[i]/tot*100)}%</b></span>`).join("");
+}
+const maxU=Math.max(...leaders.map(t=>t[1]));
+document.querySelector("#top tbody").innerHTML = leaders.map(([n,u,r])=>`
+  <tr><td><span class="rankbar" style="width:${u/maxU*42}px"></span>${n}</td>
+  <td class="num">${f.num(u)}</td><td class="num">฿${r}M</td><td class="num">${(u/uYTD*100).toFixed(1)}%</td></tr>`).join("");
+
+// re-render legends ทุกครั้งที่สลับ skin (charts จัดการเองโดย DS)
+const _render = DS.renderAll;
+DS.renderAll = function(){ _render(); legends(); };
+
+// รองรับ ?skin=... (ลิงก์ตรงไปยัง skin ที่ต้องการ)
+const qSkin = new URLSearchParams(location.search).get("skin");
+if(qSkin){ document.body.className="skin-"+qSkin; const s=document.getElementById("skin"); if(s) s.value=qSkin; }
+DS.renderAll();
+</script>
+</body>
+</html>

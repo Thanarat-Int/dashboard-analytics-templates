@@ -1,0 +1,37 @@
+{
+  "name": "DS · Luxury Gold",
+  "_skin": "luxury-gold",
+  "dataColors": [
+    "#C9A24B", "#E9DEC2", "#8C7A4E", "#9CB37A", "#C46A5A",
+    "#6E6753", "#D9C48A", "#A39B82"
+  ],
+  "background": "#171612",
+  "secondaryBackground": "#0E0E0C",
+  "foreground": "#F4EEDD",
+  "foregroundNeutralSecondary": "#A39B82",
+  "tableAccent": "#C9A24B",
+  "good": "#9CB37A",
+  "neutral": "#A39B82",
+  "bad": "#C46A5A",
+  "maximum": "#C9A24B",
+  "minimum": "#0E0E0C",
+  "textClasses": {
+    "title":   { "fontFace": "Segoe UI Semibold", "fontSize": 13, "color": "#F4EEDD" },
+    "header":  { "fontFace": "Segoe UI Semibold", "fontSize": 11, "color": "#A39B82" },
+    "label":   { "fontFace": "Segoe UI", "fontSize": 10, "color": "#A39B82" },
+    "callout": { "fontFace": "Segoe UI", "fontSize": 28, "color": "#F4EEDD" }
+  },
+  "visualStyles": {
+    "*": {
+      "*": {
+        "background": [{ "show": true, "color": { "solid": { "color": "#171612" } }, "transparency": 0 }],
+        "border":     [{ "show": true, "color": { "solid": { "color": "#2E2C24" } }, "radius": 12 }],
+        "visualHeader": [{ "show": true, "background": { "solid": { "color": "#171612" } }, "foreground": { "solid": { "color": "#A39B82" } } }],
+        "title": [{ "show": true, "fontColor": { "solid": { "color": "#F4EEDD" } }, "fontSize": 12, "fontFamily": "Segoe UI Semibold", "alignment": "left" }]
+      }
+    },
+    "page": {
+      "*": { "background": [{ "color": { "solid": { "color": "#0E0E0C" } }, "transparency": 0 }] }
+    }
+  }
+}

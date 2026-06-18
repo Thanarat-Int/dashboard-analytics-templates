@@ -1,0 +1,667 @@
+{
+  "meta": {
+    "source": "mock",
+    "market": "Thailand",
+    "currency": "THB",
+    "generated_at": "2026-06-08",
+    "version": "1.0",
+    "entity": "targets",
+    "grain": "month x region"
+  },
+  "pagination": {
+    "page": 1,
+    "page_size": 108,
+    "total_records": 108,
+    "total_pages": 1
+  },
+  "data": [
+    {
+      "month": "2025-01",
+      "region": "Central",
+      "target_units": 38,
+      "target_revenue": 40066000
+    },
+    {
+      "month": "2025-01",
+      "region": "East",
+      "target_units": 26,
+      "target_revenue": 28997000
+    },
+    {
+      "month": "2025-01",
+      "region": "North",
+      "target_units": 15,
+      "target_revenue": 17311000
+    },
+    {
+      "month": "2025-01",
+      "region": "Northeast",
+      "target_units": 12,
+      "target_revenue": 12340000
+    },
+    {
+      "month": "2025-01",
+      "region": "South",
+      "target_units": 11,
+      "target_revenue": 11922000
+    },
+    {
+      "month": "2025-01",
+      "region": "West",
+      "target_units": 8,
+      "target_revenue": 9320000
+    },
+    {
+      "month": "2025-02",
+      "region": "Central",
+      "target_units": 47,
+      "target_revenue": 58091000
+    },
+    {
+      "month": "2025-02",
+      "region": "East",
+      "target_units": 23,
+      "target_revenue": 26039000
+    },
+    {
+      "month": "2025-02",
+      "region": "North",
+      "target_units": 10,
+      "target_revenue": 10480000
+    },
+    {
+      "month": "2025-02",
+      "region": "Northeast",
+      "target_units": 15,
+      "target_revenue": 18896000
+    },
+    {
+      "month": "2025-02",
+      "region": "South",
+      "target_units": 11,
+      "target_revenue": 13270000
+    },
+    {
+      "month": "2025-02",
+      "region": "West",
+      "target_units": 7,
+      "target_revenue": 5558000
+    },
+    {
+      "month": "2025-03",
+      "region": "Central",
+      "target_units": 71,
+      "target_revenue": 80404000
+    },
+    {
+      "month": "2025-03",
+      "region": "East",
+      "target_units": 21,
+      "target_revenue": 25733000
+    },
+    {
+      "month": "2025-03",
+      "region": "North",
+      "target_units": 13,
+      "target_revenue": 13116000
+    },
+    {
+      "month": "2025-03",
+      "region": "Northeast",
+      "target_units": 15,
+      "target_revenue": 17203000
+    },
+    {
+      "month": "2025-03",
+      "region": "South",
+      "target_units": 13,
+      "target_revenue": 12872000
+    },
+    {
+      "month": "2025-03",
+      "region": "West",
+      "target_units": 10,
+      "target_revenue": 9096000
+    },
+    {
+      "month": "2025-04",
+      "region": "Central",
+      "target_units": 58,
+      "target_revenue": 63679000
+    },
+    {
+      "month": "2025-04",
+      "region": "East",
+      "target_units": 15,
+      "target_revenue": 16996000
+    },
+    {
+      "month": "2025-04",
+      "region": "North",
+      "target_units": 14,
+      "target_revenue": 17377000
+    },
+    {
+      "month": "2025-04",
+      "region": "Northeast",
+      "target_units": 17,
+      "target_revenue": 16861000
+    },
+    {
+      "month": "2025-04",
+      "region": "South",
+      "target_units": 16,
+      "target_revenue": 15175000
+    },
+    {
+      "month": "2025-04",
+      "region": "West",
+      "target_units": 5,
+      "target_revenue": 6925000
+    },
+    {
+      "month": "2025-05",
+      "region": "Central",
+      "target_units": 43,
+      "target_revenue": 45514000
+    },
+    {
+      "month": "2025-05",
+      "region": "East",
+      "target_units": 19,
+      "target_revenue": 20543000
+    },
+    {
+      "month": "2025-05",
+      "region": "North",
+      "target_units": 14,
+      "target_revenue": 15569000
+    },
+    {
+      "month": "2025-05",
+      "region": "Northeast",
+      "target_units": 28,
+      "target_revenue": 28894000
+    },
+    {
+      "month": "2025-05",
+      "region": "South",
+      "target_units": 24,
+      "target_revenue": 25675000
+    },
+    {
+      "month": "2025-05",
+      "region": "West",
+      "target_units": 5,
+      "target_revenue": 5796000
+    },
+    {
+      "month": "2025-06",
+      "region": "Central",
+      "target_units": 70,
+      "target_revenue": 76310000
+    },
+    {
+      "month": "2025-06",
+      "region": "East",
+      "target_units": 24,
+      "target_revenue": 26197000
+    },
+    {
+      "month": "2025-06",
+      "region": "North",
+      "target_units": 20,
+      "target_revenue": 22402000
+    },
+    {
+      "month": "2025-06",
+      "region": "Northeast",
+      "target_units": 26,
+      "target_revenue": 28868000
+    },
+    {
+      "month": "2025-06",
+      "region": "South",
+      "target_units": 15,
+      "target_revenue": 16439000
+    },
+    {
+      "month": "2025-06",
+      "region": "West",
+      "target_units": 9,
+      "target_revenue": 9792000
+    },
+    {
+      "month": "2025-07",
+      "region": "Central",
+      "target_units": 64,
+      "target_revenue": 70291000
+    },
+    {
+      "month": "2025-07",
+      "region": "East",
+      "target_units": 25,
+      "target_revenue": 27141000
+    },
+    {
+      "month": "2025-07",
+      "region": "North",
+      "target_units": 12,
+      "target_revenue": 12127000
+    },
+    {
+      "month": "2025-07",
+      "region": "Northeast",
+      "target_units": 16,
+      "target_revenue": 16464000
+    },
+    {
+      "month": "2025-07",
+      "region": "South",
+      "target_units": 12,
+      "target_revenue": 13138000
+    },
+    {
+      "month": "2025-07",
+      "region": "West",
+      "target_units": 10,
+      "target_revenue": 11380000
+    },
+    {
+      "month": "2025-08",
+      "region": "Central",
+      "target_units": 60,
+      "target_revenue": 68786000
+    },
+    {
+      "month": "2025-08",
+      "region": "East",
+      "target_units": 17,
+      "target_revenue": 16264000
+    },
+    {
+      "month": "2025-08",
+      "region": "North",
+      "target_units": 15,
+      "target_revenue": 20192000
+    },
+    {
+      "month": "2025-08",
+      "region": "Northeast",
+      "target_units": 29,
+      "target_revenue": 31540000
+    },
+    {
+      "month": "2025-08",
+      "region": "South",
+      "target_units": 22,
+      "target_revenue": 25468000
+    },
+    {
+      "month": "2025-08",
+      "region": "West",
+      "target_units": 6,
+      "target_revenue": 6083000
+    },
+    {
+      "month": "2025-09",
+      "region": "Central",
+      "target_units": 67,
+      "target_revenue": 75723000
+    },
+    {
+      "month": "2025-09",
+      "region": "East",
+      "target_units": 34,
+      "target_revenue": 39109000
+    },
+    {
+      "month": "2025-09",
+      "region": "North",
+      "target_units": 25,
+      "target_revenue": 26793000
+    },
+    {
+      "month": "2025-09",
+      "region": "Northeast",
+      "target_units": 21,
+      "target_revenue": 22130000
+    },
+    {
+      "month": "2025-09",
+      "region": "South",
+      "target_units": 17,
+      "target_revenue": 18346000
+    },
+    {
+      "month": "2025-09",
+      "region": "West",
+      "target_units": 9,
+      "target_revenue": 10439000
+    },
+    {
+      "month": "2025-10",
+      "region": "Central",
+      "target_units": 61,
+      "target_revenue": 67103000
+    },
+    {
+      "month": "2025-10",
+      "region": "East",
+      "target_units": 31,
+      "target_revenue": 33416000
+    },
+    {
+      "month": "2025-10",
+      "region": "North",
+      "target_units": 22,
+      "target_revenue": 25686000
+    },
+    {
+      "month": "2025-10",
+      "region": "Northeast",
+      "target_units": 27,
+      "target_revenue": 29744000
+    },
+    {
+      "month": "2025-10",
+      "region": "South",
+      "target_units": 15,
+      "target_revenue": 20280000
+    },
+    {
+      "month": "2025-10",
+      "region": "West",
+      "target_units": 5,
+      "target_revenue": 5070000
+    },
+    {
+      "month": "2025-11",
+      "region": "Central",
+      "target_units": 66,
+      "target_revenue": 67723000
+    },
+    {
+      "month": "2025-11",
+      "region": "East",
+      "target_units": 32,
+      "target_revenue": 37186000
+    },
+    {
+      "month": "2025-11",
+      "region": "North",
+      "target_units": 21,
+      "target_revenue": 22641000
+    },
+    {
+      "month": "2025-11",
+      "region": "Northeast",
+      "target_units": 18,
+      "target_revenue": 21512000
+    },
+    {
+      "month": "2025-11",
+      "region": "South",
+      "target_units": 22,
+      "target_revenue": 26335000
+    },
+    {
+      "month": "2025-11",
+      "region": "West",
+      "target_units": 7,
+      "target_revenue": 6562000
+    },
+    {
+      "month": "2025-12",
+      "region": "Central",
+      "target_units": 86,
+      "target_revenue": 95683000
+    },
+    {
+      "month": "2025-12",
+      "region": "East",
+      "target_units": 26,
+      "target_revenue": 32089000
+    },
+    {
+      "month": "2025-12",
+      "region": "North",
+      "target_units": 30,
+      "target_revenue": 34096000
+    },
+    {
+      "month": "2025-12",
+      "region": "Northeast",
+      "target_units": 37,
+      "target_revenue": 39299000
+    },
+    {
+      "month": "2025-12",
+      "region": "South",
+      "target_units": 37,
+      "target_revenue": 40958000
+    },
+    {
+      "month": "2025-12",
+      "region": "West",
+      "target_units": 11,
+      "target_revenue": 12711000
+    },
+    {
+      "month": "2026-01",
+      "region": "Central",
+      "target_units": 78,
+      "target_revenue": 89867000
+    },
+    {
+      "month": "2026-01",
+      "region": "East",
+      "target_units": 29,
+      "target_revenue": 35854000
+    },
+    {
+      "month": "2026-01",
+      "region": "North",
+      "target_units": 22,
+      "target_revenue": 20980000
+    },
+    {
+      "month": "2026-01",
+      "region": "Northeast",
+      "target_units": 20,
+      "target_revenue": 22754000
+    },
+    {
+      "month": "2026-01",
+      "region": "South",
+      "target_units": 19,
+      "target_revenue": 19308000
+    },
+    {
+      "month": "2026-01",
+      "region": "West",
+      "target_units": 8,
+      "target_revenue": 8306000
+    },
+    {
+      "month": "2026-02",
+      "region": "Central",
+      "target_units": 72,
+      "target_revenue": 77494000
+    },
+    {
+      "month": "2026-02",
+      "region": "East",
+      "target_units": 32,
+      "target_revenue": 34173000
+    },
+    {
+      "month": "2026-02",
+      "region": "North",
+      "target_units": 23,
+      "target_revenue": 25611000
+    },
+    {
+      "month": "2026-02",
+      "region": "Northeast",
+      "target_units": 33,
+      "target_revenue": 33942000
+    },
+    {
+      "month": "2026-02",
+      "region": "South",
+      "target_units": 21,
+      "target_revenue": 23240000
+    },
+    {
+      "month": "2026-02",
+      "region": "West",
+      "target_units": 10,
+      "target_revenue": 10560000
+    },
+    {
+      "month": "2026-03",
+      "region": "Central",
+      "target_units": 88,
+      "target_revenue": 100574000
+    },
+    {
+      "month": "2026-03",
+      "region": "East",
+      "target_units": 33,
+      "target_revenue": 36999000
+    },
+    {
+      "month": "2026-03",
+      "region": "North",
+      "target_units": 29,
+      "target_revenue": 29927000
+    },
+    {
+      "month": "2026-03",
+      "region": "Northeast",
+      "target_units": 38,
+      "target_revenue": 42641000
+    },
+    {
+      "month": "2026-03",
+      "region": "South",
+      "target_units": 14,
+      "target_revenue": 15615000
+    },
+    {
+      "month": "2026-03",
+      "region": "West",
+      "target_units": 14,
+      "target_revenue": 15037000
+    },
+    {
+      "month": "2026-04",
+      "region": "Central",
+      "target_units": 62,
+      "target_revenue": 71468000
+    },
+    {
+      "month": "2026-04",
+      "region": "East",
+      "target_units": 33,
+      "target_revenue": 35951000
+    },
+    {
+      "month": "2026-04",
+      "region": "North",
+      "target_units": 33,
+      "target_revenue": 36222000
+    },
+    {
+      "month": "2026-04",
+      "region": "Northeast",
+      "target_units": 27,
+      "target_revenue": 29063000
+    },
+    {
+      "month": "2026-04",
+      "region": "South",
+      "target_units": 21,
+      "target_revenue": 24813000
+    },
+    {
+      "month": "2026-04",
+      "region": "West",
+      "target_units": 16,
+      "target_revenue": 15928000
+    },
+    {
+      "month": "2026-05",
+      "region": "Central",
+      "target_units": 90,
+      "target_revenue": 105697000
+    },
+    {
+      "month": "2026-05",
+      "region": "East",
+      "target_units": 31,
+      "target_revenue": 33920000
+    },
+    {
+      "month": "2026-05",
+      "region": "North",
+      "target_units": 30,
+      "target_revenue": 33069000
+    },
+    {
+      "month": "2026-05",
+      "region": "Northeast",
+      "target_units": 23,
+      "target_revenue": 27285000
+    },
+    {
+      "month": "2026-05",
+      "region": "South",
+      "target_units": 22,
+      "target_revenue": 25239000
+    },
+    {
+      "month": "2026-05",
+      "region": "West",
+      "target_units": 8,
+      "target_revenue": 8276000
+    },
+    {
+      "month": "2026-06",
+      "region": "Central",
+      "target_units": 19,
+      "target_revenue": 21747000
+    },
+    {
+      "month": "2026-06",
+      "region": "East",
+      "target_units": 12,
+      "target_revenue": 13382000
+    },
+    {
+      "month": "2026-06",
+      "region": "North",
+      "target_units": 14,
+      "target_revenue": 12902000
+    },
+    {
+      "month": "2026-06",
+      "region": "Northeast",
+      "target_units": 11,
+      "target_revenue": 11091000
+    },
+    {
+      "month": "2026-06",
+      "region": "South",
+      "target_units": 8,
+      "target_revenue": 8474000
+    },
+    {
+      "month": "2026-06",
+      "region": "West",
+      "target_units": 3,
+      "target_revenue": 3096000
+    }
+  ]
+}

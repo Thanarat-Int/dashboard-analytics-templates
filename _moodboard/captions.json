@@ -1,0 +1,7 @@
+{
+  "_README": "ไม่บังคับ — ถ้าไม่ใส่ ระบบจะใช้ชื่อไฟล์เป็น caption เอง. key = ชื่อไฟล์ใน img/ ; ใส่ title + tags เพื่อให้ค้น/กรองได้",
+  "_example_sales-exec-gold.png": {
+    "title": "Sales Exec · luxury gold",
+    "tags": ["sales", "executive", "gold", "dark"]
+  }
+}

@@ -1,0 +1,126 @@
+{
+  "meta": {
+    "source": "mock",
+    "domain": "observability",
+    "generated_at": "2026-06-14T12:00:00Z",
+    "version": "1.0",
+    "entity": "incidents",
+    "window": "7d"
+  },
+  "pagination": {
+    "page": 1,
+    "page_size": 12,
+    "total_records": 12,
+    "total_pages": 1
+  },
+  "data": [
+    {
+      "id": "INC-20260012",
+      "opened_at": "2026-06-13T12:53:00Z",
+      "service": "DB Primary",
+      "severity": "Major",
+      "status": "Resolved",
+      "message": "Token refresh queue backlog",
+      "age_min": 1387
+    },
+    {
+      "id": "INC-20260011",
+      "opened_at": "2026-06-13T00:07:00Z",
+      "service": "DB Primary",
+      "severity": "Minor",
+      "status": "Resolved",
+      "message": "Cert renewal due in 7 days",
+      "age_min": 2153
+    },
+    {
+      "id": "INC-20260010",
+      "opened_at": "2026-06-12T23:07:00Z",
+      "service": "Auth Service",
+      "severity": "Minor",
+      "status": "Resolved",
+      "message": "Intermittent 429 on Notification",
+      "age_min": 2213
+    },
+    {
+      "id": "INC-20260005",
+      "opened_at": "2026-06-12T19:59:00Z",
+      "service": "API Gateway",
+      "severity": "Minor",
+      "status": "Resolved",
+      "message": "Index lag 40s",
+      "age_min": 2401
+    },
+    {
+      "id": "INC-20260009",
+      "opened_at": "2026-06-12T17:41:00Z",
+      "service": "Payment",
+      "severity": "Major",
+      "status": "Open",
+      "message": "Cache hit ratio degraded",
+      "age_min": 2539
+    },
+    {
+      "id": "INC-20260007",
+      "opened_at": "2026-06-12T05:39:00Z",
+      "service": "API Gateway",
+      "severity": "Minor",
+      "status": "Ack",
+      "message": "Cert renewal due in 7 days",
+      "age_min": 3261
+    },
+    {
+      "id": "INC-20260001",
+      "opened_at": "2026-06-11T04:44:00Z",
+      "service": "Search",
+      "severity": "Critical",
+      "status": "Ack",
+      "message": "Latency spike >2s on checkout",
+      "age_min": 4756
+    },
+    {
+      "id": "INC-20260004",
+      "opened_at": "2026-06-10T06:52:00Z",
+      "service": "Auth Service",
+      "severity": "Minor",
+      "status": "Open",
+      "message": "Memory pressure on worker",
+      "age_min": 6068
+    },
+    {
+      "id": "INC-20260006",
+      "opened_at": "2026-06-09T08:44:00Z",
+      "service": "Notification",
+      "severity": "Critical",
+      "status": "Resolved",
+      "message": "Latency spike >2s on checkout",
+      "age_min": 7396
+    },
+    {
+      "id": "INC-20260003",
+      "opened_at": "2026-06-09T01:06:00Z",
+      "service": "DB Primary",
+      "severity": "Minor",
+      "status": "Open",
+      "message": "Disk usage 78% on node-3",
+      "age_min": 7854
+    },
+    {
+      "id": "INC-20260002",
+      "opened_at": "2026-06-08T15:16:00Z",
+      "service": "Search",
+      "severity": "Minor",
+      "status": "Ack",
+      "message": "Slow query detected",
+      "age_min": 8444
+    },
+    {
+      "id": "INC-20260008",
+      "opened_at": "2026-06-08T06:43:00Z",
+      "service": "DB Primary",
+      "severity": "Critical",
+      "status": "Ack",
+      "message": "DB Primary connection pool exhausted",
+      "age_min": 8957
+    }
+  ]
+}

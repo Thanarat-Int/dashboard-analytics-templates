@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Template · Financial P&L</title>
+<link rel="stylesheet" href="../../_design-system/tokens.css" />
+<link rel="stylesheet" href="../../_design-system/components.css" />
+<link rel="stylesheet" href="../../_design-system/skins/skins.css" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="../../_design-system/charts.js"></script>
+</head>
+<body class="skin-finance-dark">
+<div class="wrap">
+  <header class="ds-header">
+    <div class="brand">
+      <div class="logo"><span class="mark">FIN</span><span class="tag">CONTROLLING</span></div>
+      <div>
+        <h1>Financial P&amp;L <span class="tag-pill">Template</span></h1>
+        <p>Archetype 03 · explain — waterfall, variance vs budget, margin trend</p>
+      </div>
+    </div>
+    <div class="ctx">
+      <select class="skin-select" id="skin" onchange="DS.setSkin(this.value)">
+        <option value="finance-dark">Skin: Finance Dark</option>
+        <option value="byd-red">Skin: BYD Red</option>
+        <option value="saas-violet">Skin: SaaS Violet</option>
+        <option value="luxury-gold">Skin: Luxury Gold</option>
+        <option value="command-center">Skin: Command Center</option>
+      </select>
+      <div class="chip active">FY2025</div>
+      <div class="chip">Unit <b>฿M</b></div>
+    </div>
+  </header>
+
+  <section class="kpis" id="kpis"></section>
+
+  <div class="row c-21">
+    <div class="card chart-card">
+      <div class="chart-head"><h3><span class="dot"></span>P&amp;L Waterfall (฿M)</h3></div>
+      <div class="canvas-box"><canvas id="waterfall"></canvas></div>
+    </div>
+    <div class="card chart-card">
+      <div class="chart-head"><h3><span class="dot"></span>Operating Expense Mix</h3></div>
+      <div class="canvas-box lg"><canvas id="opex"></canvas></div>
+      <div class="legend" id="opexLegend"></div>
+    </div>
+  </div>
+
+  <div class="row c-12">
+    <div class="card chart-card">
+      <div class="chart-head"><h3><span class="dot"></span>Gross & Net Margin Trend</h3></div>
+      <div class="canvas-box sm"><canvas id="margin"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="chart-head"><h3><span class="dot"></span>P&amp;L Statement — Actual vs Budget</h3></div>
+      <table id="pnl"><thead><tr><th>Line item</th><th class="num">Actual</th><th class="num">Budget</th><th class="num">Var</th><th class="num">Var %</th></tr></thead><tbody></tbody></table>
+    </div>
+  </div>
+  <footer>Template · _design-system · financial / finance-dark archetype</footer>
+</div>
+
+<script>
+const f = DS.fmt;
+// ---------- KPIs ----------
+const cards=[
+  {t:"Revenue", v:"฿1,870M", d:12.4, sub:"vs ฿1,664M LY"},
+  {t:"Gross Margin", v:"29.9%", d:1.2, sub:"GP ฿560M"},
+  {t:"EBIT", v:"฿200M", d:8.1, sub:"margin 10.7%"},
+  {t:"Net Profit", v:"฿160M", d:6.7, sub:"margin 8.6%"},
+  {t:"Budget Variance", v:"+฿14M", bar:101, sub:"101% of plan"},
+];
+document.getElementById("kpis").innerHTML = cards.map(k=>`
+  <div class="card kpi"><span class="accent"></span><h3>${k.t}</h3>
+  <div class="val">${k.v}</div>
+  ${k.bar!==undefined?`<div class="bar"><i style="width:${Math.min(k.bar,100)}%"></i></div>`:``}
+  <div class="sub">${k.d!==undefined?`<span class="delta ${k.d>=0?'up':'down'}">${f.pct(k.d)} YoY</span>`:``}${k.sub}</div></div>`).join("");
+
+// ---------- waterfall ----------
+// running P&L: Revenue 1870 -> COGS -1310 -> Gross 560 -> OpEx -360 -> EBIT 200 -> Tax -40 -> Net 160
+const wLabels=["Revenue","COGS","Gross Profit","OpEx","EBIT","Tax","Net Profit"];
+const wBase  =[0,    560,  0,   200, 0,   160, 0  ];
+const wDelta =[1870, 1310, 560, 360, 200, 40,  160];
+const wType  =["total","neg","total","neg","total","neg","total"]; // สีตามชนิด
+
+DS.add("waterfall", el => {
+  const col = t => t==="total"?DS.C('accent'):DS.C('neg');
+  return new Chart(el,{type:"bar",data:{labels:wLabels,datasets:[
+    {label:"_base",data:wBase,backgroundColor:"transparent",stack:"w"},
+    {label:"value",data:wDelta,backgroundColor:wType.map(col),borderRadius:4,stack:"w"},
+  ]},options:(()=>{const o=DS.baseOpts({curMoney:true});o.plugins.legend.display=false;
+    o.plugins.tooltip.callbacks={label:c=>c.datasetIndex===1?DS.fmt.abbr(wDelta[c.dataIndex]*1e6,'฿'):null};
+    return o;})()});
+});
+
+// ---------- opex donut ----------
+const opex=[["Sales & Mktg",132],["G&A",96],["R&D",78],["Logistics",54]];
+DS.add("opex", el => new Chart(el,{type:"doughnut",data:{labels:opex.map(o=>o[0]),
+  datasets:[{data:opex.map(o=>o[1]),backgroundColor:DS.colors().slice(0,4),borderColor:DS.cssVar('--card'),borderWidth:3}]},
+  options:{cutout:"62%",maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:DS.tooltip()}}}));
+
+// ---------- margin trend ----------
+const qs=["Q1","Q2","Q3","Q4"];
+const grossM=[28.1,29.0,30.2,31.4], netM=[7.2,8.0,8.9,9.5];
+DS.add("margin", el => new Chart(el,{type:"line",data:{labels:qs,datasets:[
+  {label:"Gross %",data:grossM,borderColor:DS.C('c1'),backgroundColor:DS.cssVar('--accent-soft'),borderWidth:2.5,tension:.35,pointRadius:3,fill:true},
+  {label:"Net %",data:netM,borderColor:DS.C('c2'),borderWidth:2.5,tension:.35,pointRadius:3},
+]},options:DS.baseOpts({legend:true,zero:false})}));
+
+// ---------- P&L table + opex legend ----------
+const rows=[
+  ["Revenue",1870,1856],["COGS",-1310,-1300],["Gross Profit",560,556],
+  ["Operating Expense",-360,-372],["EBIT",200,184],["Tax",-40,-37],["Net Profit",160,147],
+];
+function fill(){
+  document.querySelector("#pnl tbody").innerHTML = rows.map(([n,a,b])=>{
+    const v=a-b, vp=b!==0?v/Math.abs(b)*100:0;
+    const good = (n.startsWith("COGS")||n.includes("Expense")||n==="Tax") ? v<0 : v>0;
+    const cls = v===0?'':good?'up':'down';
+    const bold = ["Gross Profit","EBIT","Net Profit"].includes(n)?'style="font-weight:700"':'';
+    return `<tr ${bold}><td>${n}</td><td class="num">${f.num(a)}</td><td class="num">${f.num(b)}</td>
+      <td class="num"><span class="delta ${cls}">${v>=0?'+':''}${f.num(v)}</span></td>
+      <td class="num">${f.pct(vp)}</td></tr>`;
+  }).join("");
+  document.getElementById("opexLegend").innerHTML = opex.map((o,i)=>
+    `<span><span class="dot" style="background:${DS.colors()[i]}"></span>${o[0]} · <b>฿${o[1]}M</b></span>`).join("");
+}
+const _r=DS.renderAll; DS.renderAll=function(){ _r(); fill(); };
+const qSkin=new URLSearchParams(location.search).get("skin");
+if(qSkin){ document.body.className="skin-"+qSkin; const s=document.getElementById("skin"); if(s) s.value=qSkin; }
+DS.renderAll();
+</script>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Template · Operational Monitor</title>
+<link rel="stylesheet" href="../../_design-system/tokens.css" />
+<link rel="stylesheet" href="../../_design-system/components.css" />
+<link rel="stylesheet" href="../../_design-system/skins/skins.css" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="../../_design-system/charts.js"></script>
+</head>
+<body class="skin-command-center">
+<div class="wrap">
+  <header class="ds-header">
+    <div class="brand">
+      <div class="logo"><span class="mark">OPS</span><span class="tag">CONTROL ROOM</span></div>
+      <div>
+        <h1>Operational Monitor <span class="tag-pill">Template</span></h1>
+        <p>Archetype 02 · monitor real-time — SLA, throughput, incidents, utilization</p>
+      </div>
+    </div>
+    <div class="ctx">
+      <select class="skin-select" id="skin" onchange="DS.setSkin(this.value)">
+        <option value="command-center">Skin: Command Center</option>
+        <option value="finance-dark">Skin: Finance Dark</option>
+        <option value="byd-red">Skin: BYD Red</option>
+        <option value="saas-violet">Skin: SaaS Violet</option>
+        <option value="luxury-gold">Skin: Luxury Gold</option>
+      </select>
+      <div class="chip active">LIVE</div>
+      <div class="chip">Window <b>24h</b></div>
+    </div>
+  </header>
+
+  <section class="kpis" id="kpis"></section>
+
+  <div class="row c-21">
+    <div class="card chart-card">
+      <div class="chart-head"><h3><span class="dot"></span>Throughput (req/min · last 24h)</h3></div>
+      <div class="canvas-box"><canvas id="throughput"></canvas></div>
+    </div>
+    <div class="card chart-card">
+      <div class="chart-head"><h3><span class="dot"></span>Incidents by Severity (7d)</h3></div>
+      <div class="canvas-box lg"><canvas id="incidents"></canvas></div>
+    </div>
+  </div>
+
+  <div class="row c-12">
+    <div class="card chart-card">
+      <div class="chart-head"><h3><span class="dot"></span>Service Utilization</h3></div>
+      <div class="canvas-box sm"><canvas id="util"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="chart-head"><h3><span class="dot"></span>Active Alert Feed</h3></div>
+      <table id="alerts"><thead><tr><th>Time</th><th>Service</th><th>Severity</th><th>Message</th><th class="num">Age</th></tr></thead><tbody></tbody></table>
+    </div>
+  </div>
+  <footer>Template · _design-system · operational / command-center archetype</footer>
+</div>
+
+<script>
+const f = DS.fmt;
+// ---------- KPIs ----------
+const tiles=[
+  {t:"SLA Attainment", v:"99.4%", bar:99.4, sub:"target 99.5%", d:-0.1},
+  {t:"Active Incidents", v:"3", sub:"1 critical · 2 major"},
+  {t:"Throughput", v:"4.8K", sub:"req/min · peak 7.2K", d:6.4},
+  {t:"Avg Latency", v:"212ms", sub:"p95 480ms", d:-3.2},
+  {t:"Uptime (30d)", v:"99.97%", bar:99.97, sub:"SLO 99.9%"},
+];
+document.getElementById("kpis").innerHTML = tiles.map(k=>`
+  <div class="card kpi"><span class="accent"></span><h3>${k.t}</h3>
+  <div class="val">${k.v}</div>
+  ${k.bar!==undefined?`<div class="bar"><i style="width:${k.bar}%"></i></div>`:``}
+  <div class="sub">${k.d!==undefined?`<span class="delta ${k.d>=0?'up':'down'}">${f.pct(k.d)}</span>`:``}${k.sub}</div></div>`).join("");
+
+// ---------- data ----------
+const hours = Array.from({length:24},(_,i)=>String(i).padStart(2,"0")+":00");
+const flow  = [3.1,2.6,2.2,2.0,2.1,2.8,3.9,5.2,6.4,6.8,6.6,6.9,7.0,6.7,6.5,6.8,7.2,6.9,6.1,5.3,4.6,4.0,3.6,3.2];
+const days  = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+const sevCrit=[1,0,2,1,0,1,0], sevMaj=[3,2,4,2,3,1,2], sevMin=[6,5,7,4,6,3,4];
+const svc = [["API Gateway",82],["Auth Service",64],["Payment",91],["Search",47],["Notification",38],["DB Primary",73]];
+const feed = [
+  ["00:14","Payment","Critical","Latency spike >2s on checkout","6m"],
+  ["00:09","API Gateway","Major","5xx rate 3.1% (threshold 2%)","11m"],
+  ["23:52","Auth Service","Major","Token refresh queue backlog","28m"],
+  ["23:40","Search","Minor","Index lag 40s","40m"],
+];
+
+// ---------- charts ----------
+DS.add("throughput", el => new Chart(el,{type:"line",data:{labels:hours,datasets:[
+  {label:"req/min (K)",data:flow,borderColor:DS.C('c1'),backgroundColor:DS.cssVar('--accent-soft'),
+   borderWidth:2.5,tension:.4,pointRadius:0,fill:true}]},options:DS.baseOpts({legend:false})}));
+
+DS.add("incidents", el => new Chart(el,{type:"bar",data:{labels:days,datasets:[
+  {label:"Critical",data:sevCrit,backgroundColor:DS.C('c5')},
+  {label:"Major",data:sevMaj,backgroundColor:DS.C('c3')},
+  {label:"Minor",data:sevMin,backgroundColor:DS.C('c2')},
+]},options:DS.baseOpts({stacked:true,legend:true})}));
+
+DS.add("util", el => {
+  const thresholdColor = v => v>=85?DS.C('c5'):v>=70?DS.C('c3'):DS.C('c1');
+  return new Chart(el,{type:"bar",data:{labels:svc.map(s=>s[0]),
+    datasets:[{data:svc.map(s=>s[1]),backgroundColor:svc.map(s=>thresholdColor(s[1])),borderRadius:5}]},
+    options:DS.baseOpts({horizontal:true})});
+});
+
+// ---------- alert table ----------
+const sevPill = s => {
+  const c = s==="Critical"?DS.C('neg'):s==="Major"?DS.C('c3'):DS.C('muted');
+  return `<span class="tag-pill" style="background:transparent;color:${c};border:1px solid ${c}">${s}</span>`;
+};
+function fillAlerts(){
+  document.querySelector("#alerts tbody").innerHTML = feed.map(([t,s,sev,m,age])=>`
+    <tr><td>${t}</td><td>${s}</td><td>${sevPill(sev)}</td><td style="color:var(--muted)">${m}</td><td class="num">${age}</td></tr>`).join("");
+}
+const _r = DS.renderAll; DS.renderAll = function(){ _r(); fillAlerts(); };
+const qSkin = new URLSearchParams(location.search).get("skin");
+if(qSkin){ document.body.className="skin-"+qSkin; const s=document.getElementById("skin"); if(s) s.value=qSkin; }
+DS.renderAll();
+</script>
+</body>
+</html>

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Template · Marketing / Campaign Performance</title>
+<link rel="stylesheet" href="../../_design-system/tokens.css" />
+<link rel="stylesheet" href="../../_design-system/components.css" />
+<link rel="stylesheet" href="../../_design-system/skins/skins.css" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="../../_design-system/charts.js"></script>
+</head>
+<body class="skin-saas-violet">
+<div class="wrap">
+  <header class="ds-header">
+    <div class="brand">
+      <div class="logo"><span class="mark">MKTG</span><span class="tag">CAMPAIGN OPS</span></div>
+      <div>
+        <h1>Marketing Performance <span class="tag-pill">Template</span></h1>
+        <p>Archetype 06 · diagnose — spend, ROAS, channel &amp; campaign efficiency</p>
+      </div>
+    </div>
+    <div class="ctx">
+      <select class="skin-select" id="skin" onchange="DS.setSkin(this.value)">
+        <option value="byd-red">Skin: BYD Red</option>
+        <option value="finance-dark">Skin: Finance Dark</option>
+        <option value="saas-violet">Skin: SaaS Violet</option>
+        <option value="luxury-gold">Skin: Luxury Gold</option>
+        <option value="command-center">Skin: Command Center</option>
+      </select>
+      <div class="chip active">Last 12 weeks</div>
+      <div class="chip">As of <b>Jun 2026</b></div>
+    </div>
+  </header>
+
+  <section class="kpis" id="kpis"></section>
+
+  <!-- Combo: clustered column (Spend) + line (ROAS, 2nd axis) -> Power BI "Line and clustered column chart" -->
+  <div class="row c-21">
+    <div class="card chart-card">
+      <div class="chart-head"><h3><span class="dot"></span>Spend vs Revenue by Channel</h3></div>
+      <div class="canvas-box"><canvas id="chanCombo"></canvas></div>
+      <div class="legend" id="chanLegend"></div>
+    </div>
+    <!-- Horizontal bar (ranked) -> Power BI "Clustered bar chart" -->
+    <div class="card chart-card">
+      <div class="chart-head"><h3><span class="dot"></span>ROAS by Campaign</h3></div>
+      <div class="canvas-box lg"><canvas id="roasRank"></canvas></div>
+    </div>
+  </div>
+
+  <div class="row c-12">
+    <!-- Area/line trend -> Power BI "Line chart" (dual axis) -->
+    <div class="card chart-card">
+      <div class="chart-head"><h3><span class="dot"></span>Spend &amp; Leads Trend (12 weeks)</h3></div>
+      <div class="canvas-box sm"><canvas id="trend"></canvas></div>
+      <div class="legend" id="trendLegend"></div>
+    </div>
+    <!-- Table -> Power BI "Table" with conditional formatting -->
+    <div class="card">
+      <div class="chart-head"><h3><span class="dot"></span>Campaign Detail</h3></div>
+      <table id="detail"><thead><tr>
+        <th>Campaign</th><th>Channel</th><th class="num">Spend</th>
+        <th class="num">Revenue</th><th class="num">ROAS</th><th class="num">CPL</th>
+      </tr></thead><tbody></tbody></table>
+    </div>
+  </div>
+  <footer>Template · _design-system tokens + components + skins · inline demo data</footer>
+</div>
+
+<script>
+// ---------- demo data (สลับเป็นของจริงได้ทันที โครงไม่เปลี่ยน) ----------
+const f = DS.fmt;
+const sum = a => a.reduce((x,y)=>x+y,0);
+
+// Channels: spend, revenue attributed
+const channels = ["Paid Search","Paid Social","Display","Email","Affiliate","Video"];
+const chanSpend = [1820000, 1450000, 760000, 240000, 410000, 690000];
+const chanRev   = [6920000, 4180000, 1520000, 1560000, 1480000, 1790000];
+const chanRoas  = chanSpend.map((s,i)=> chanRev[i]/s);
+
+// Campaigns (ranked by ROAS) — [name, channel, spend, revenue]
+const campaigns = [
+  ["Summer Sale Search","Paid Search",  640000, 2880000],
+  ["Retargeting Bundle","Display",       210000,  945000],
+  ["Brand Lift Video","Video",           420000, 1680000],
+  ["Newsletter Promo","Email",           120000,  900000],
+  ["Lookalike Prospecting","Paid Social",530000, 1908000],
+  ["Affiliate Push","Affiliate",         410000, 1480000],
+  ["Lead-Gen Forms","Paid Social",       380000,  912000],
+  ["Always-On PMax","Paid Search",       560000, 1232000],
+  ["Awareness Display","Display",         340000,  476000],
+];
+
+// 12-week trend: weekly spend + leads
+const WEEKS = Array.from({length:12}, (_,i)=>"W"+(i+1));
+const wkSpend = [385,402,418,431,455,470,462,488,505,521,540,558].map(v=>v*1000);
+const wkLeads = [1180,1240,1295,1330,1410,1465,1430,1520,1585,1640,1710,1780];
+
+// ---------- KPIs ----------
+const spendTotal = sum(chanSpend);
+const revTotal   = sum(chanRev);
+const roasOverall= revTotal/spendTotal;
+const leadsTotal = sum(wkLeads);
+const cpl        = spendTotal/leadsTotal;
+const spendPY=4980000, revPY=15120000, leadsPY=14250, cplPY=4980000/14250;
+
+const kpis=[
+  {t:"Marketing Spend", v:f.abbr(spendTotal,'฿'), d:(spendTotal-spendPY)/spendPY*100, sub:`vs ${f.abbr(spendPY,'฿')} prior`},
+  {t:"Revenue Attributed", v:f.abbr(revTotal,'฿'), d:(revTotal-revPY)/revPY*100, sub:`vs ${f.abbr(revPY,'฿')} prior`},
+  {t:"ROAS", v:roasOverall.toFixed(2)+"x", bar:Math.min(roasOverall/5*100,100), sub:"target 3.0x"},
+  {t:"Leads", v:f.num(leadsTotal), d:(leadsTotal-leadsPY)/leadsPY*100, sub:`vs ${f.num(leadsPY)} prior`},
+  {t:"Cost per Lead (CPL)", v:"฿"+f.num(cpl), d:(cpl-cplPY)/cplPY*100, inv:true, sub:`vs ฿${f.num(cplPY)} prior`},
+];
+document.getElementById("kpis").innerHTML = kpis.map(k=>{
+  const good = k.d===undefined ? null : (k.inv ? k.d<=0 : k.d>=0);
+  return `
+  <div class="card kpi"><span class="accent"></span><h3>${k.t}</h3>
+  <div class="val">${k.v}</div>
+  ${k.bar!==undefined?`<div class="bar"><i style="width:${k.bar}%"></i></div>`:``}
+  <div class="sub">${k.d!==undefined?`<span class="delta ${good?'up':'down'}">${f.pct(k.d)}</span>`:``}${k.sub}</div></div>`;
+}).join("");
+
+// ---------- charts (อ้าง DS.colors()/DS.C() ตอน build -> reskin แล้วสีตามทันที) ----------
+// 1) Combo: Spend & Revenue columns + ROAS line on 2nd axis
+DS.add("chanCombo", el => new Chart(el,{data:{labels:channels,datasets:[
+  {type:"bar",label:"Spend",data:chanSpend,backgroundColor:DS.C('c1'),borderRadius:5,yAxisID:"y",order:3,categoryPercentage:.66},
+  {type:"bar",label:"Revenue",data:chanRev,backgroundColor:DS.C('c2'),borderRadius:5,yAxisID:"y",order:3,categoryPercentage:.66},
+  {type:"line",label:"ROAS",data:chanRoas,borderColor:DS.C('c4'),borderWidth:2.5,tension:.35,pointRadius:3,
+    pointBackgroundColor:DS.C('c4'),yAxisID:"y1",order:1},
+]},options:DS.baseOpts({dualAxis:true,curMoney:true})}));
+
+// 2) Ranked horizontal bar: ROAS by Campaign
+const ranked = campaigns.map(c=>[c[0], c[3]/c[2]]).sort((a,b)=>b[1]-a[1]);
+DS.add("roasRank", el => new Chart(el,{type:"bar",data:{labels:ranked.map(r=>r[0]),
+  datasets:[{data:ranked.map(r=>r[1]),
+    backgroundColor:ranked.map(r=> r[1]>=3 ? DS.C('pos') : r[1]<1.5 ? DS.C('neg') : DS.C('c3')),
+    borderRadius:5}]},
+  options:DS.baseOpts({horizontal:true})}));
+
+// 3) Trend: Spend (area) + Leads (line, 2nd axis)
+DS.add("trend", el => new Chart(el,{data:{labels:WEEKS,datasets:[
+  {type:"line",label:"Spend",data:wkSpend,borderColor:DS.C('c1'),backgroundColor:DS.C('accent-soft'),
+    borderWidth:2.5,tension:.35,pointRadius:0,fill:true,yAxisID:"y"},
+  {type:"line",label:"Leads",data:wkLeads,borderColor:DS.C('c4'),borderWidth:2.5,borderDash:[5,4],
+    tension:.35,pointRadius:0,yAxisID:"y1"},
+]},options:(function(){const o=DS.baseOpts({curMoney:true});
+  o.scales.y1={position:'right',grid:{display:false},beginAtZero:true,
+    ticks:{color:DS.cssVar('--muted'),font:{size:11}}};return o;})()}));
+
+// ---------- legends + table ----------
+function legends(){
+  const cl=[["Spend",DS.C('c1')],["Revenue",DS.C('c2')],["ROAS",DS.C('c4')]];
+  document.getElementById("chanLegend").innerHTML = cl.map(([n,c])=>
+    `<span><span class="dot" style="background:${c}"></span>${n}</span>`).join("");
+  const tl=[["Spend",DS.C('c1')],["Leads",DS.C('c4')]];
+  document.getElementById("trendLegend").innerHTML = tl.map(([n,c])=>
+    `<span><span class="dot" style="background:${c}"></span>${n}</span>`).join("");
+}
+
+function renderTable(){
+  const rows = campaigns.map(c=>{
+    const [nm,ch,sp,rv]=c; return {nm,ch,sp,rv,roas:rv/sp,cpl:sp/(rv/sp*45)};
+  }).sort((a,b)=>b.sp-a.sp);
+  const maxSpend=Math.max(...rows.map(r=>r.sp));
+  document.querySelector("#detail tbody").innerHTML = rows.map(r=>{
+    const cls = r.roas>=3 ? 'up' : r.roas<1.5 ? 'down' : '';
+    const pill = cls ? `<span class="delta ${cls}">${r.roas.toFixed(2)}x</span>` : `${r.roas.toFixed(2)}x`;
+    return `<tr>
+      <td><span class="rankbar" style="width:${r.sp/maxSpend*42}px"></span>${r.nm}</td>
+      <td>${r.ch}</td>
+      <td class="num">${f.abbr(r.sp,'฿')}</td>
+      <td class="num">${f.abbr(r.rv,'฿')}</td>
+      <td class="num">${pill}</td>
+      <td class="num">฿${f.num(r.cpl)}</td>
+    </tr>`;
+  }).join("");
+}
+
+// re-render legends + table ทุกครั้งที่สลับ skin (charts จัดการเองโดย DS)
+const _render = DS.renderAll;
+DS.renderAll = function(){ _render(); legends(); renderTable(); };
+
+// รองรับ ?skin=... (ลิงก์ตรงไปยัง skin ที่ต้องการ)
+const qSkin = new URLSearchParams(location.search).get("skin");
+if(qSkin){ document.body.className="skin-"+qSkin; const s=document.getElementById("skin"); if(s) s.value=qSkin; }
+DS.renderAll();
+</script>
+</body>
+</html>

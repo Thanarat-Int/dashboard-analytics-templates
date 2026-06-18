@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Template · Customer Lifecycle / CRM</title>
+<link rel="stylesheet" href="../../_design-system/tokens.css" />
+<link rel="stylesheet" href="../../_design-system/components.css" />
+<link rel="stylesheet" href="../../_design-system/skins/skins.css" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="../../_design-system/charts.js"></script>
+</head>
+<body class="skin-saas-violet">
+<div class="wrap">
+  <header class="ds-header">
+    <div class="brand">
+      <div class="logo"><span class="mark">CRM</span><span class="tag">CUSTOMER 360</span></div>
+      <div>
+        <h1>Customer Lifecycle <span class="tag-pill">Template</span></h1>
+        <p>Archetype 10 · diagnose — lifecycle, retention, segmentation, CLV</p>
+      </div>
+    </div>
+    <div class="ctx">
+      <select class="skin-select" id="skin" onchange="DS.setSkin(this.value)">
+        <option value="saas-violet">Skin: SaaS Violet</option>
+        <option value="byd-red">Skin: BYD Red</option>
+        <option value="finance-dark">Skin: Finance Dark</option>
+        <option value="luxury-gold">Skin: Luxury Gold</option>
+        <option value="command-center">Skin: Command Center</option>
+      </select>
+      <div class="chip active">Rolling 12M</div>
+      <div class="chip">Base <b>Owners</b></div>
+    </div>
+  </header>
+
+  <section class="kpis" id="kpis"></section>
+
+  <div class="row c-21">
+    <!-- PBI: Clustered bar / Funnel visual -->
+    <div class="card chart-card">
+      <div class="chart-head"><h3><span class="dot"></span>Ownership Lifecycle — Lead → Repurchase</h3></div>
+      <div class="canvas-box"><canvas id="lifecycle"></canvas></div>
+    </div>
+    <!-- PBI: Clustered column chart -->
+    <div class="card chart-card">
+      <div class="chart-head"><h3><span class="dot"></span>RFM Segmentation — customers by segment</h3></div>
+      <div class="canvas-box lg"><canvas id="segments"></canvas></div>
+    </div>
+  </div>
+
+  <div class="row c-211">
+    <!-- PBI: Line chart -->
+    <div class="card chart-card">
+      <div class="chart-head"><h3><span class="dot"></span>Cohort Retention (%)</h3></div>
+      <div class="canvas-box sm"><canvas id="cohort"></canvas></div>
+    </div>
+    <!-- PBI: Donut chart -->
+    <div class="card chart-card">
+      <div class="chart-head"><h3><span class="dot"></span>Owners by Tenure Band</h3></div>
+      <div class="canvas-box sm"><canvas id="tenure"></canvas></div>
+      <div class="legend" id="tenureLegend"></div>
+    </div>
+    <!-- PBI: Table visual + conditional formatting (data bar + icon/background) -->
+    <div class="card">
+      <div class="chart-head"><h3><span class="dot"></span>At-risk &amp; Top Segments</h3></div>
+      <table id="segTable"><thead><tr><th>Segment</th><th class="num">Customers</th><th class="num">Avg CLV</th><th class="num">Churn risk</th></tr></thead><tbody></tbody></table>
+    </div>
+  </div>
+  <footer>Template · _design-system tokens + components + skins · inline demo data (auto ownership: test drive → purchase → service → repurchase)</footer>
+</div>
+
+<script>
+const f = DS.fmt;
+
+// ---------- KPIs ----------
+const kpis=[
+  {t:"Active Customers", v:f.num(18420), d:6.4, sub:"vs 17,310 LY"},
+  {t:"Repurchase Rate", v:"23.8%", d:2.1, sub:"owners with 2nd purchase"},
+  {t:"Avg CLV", v:f.abbr(1480000,'฿'), d:4.7, sub:"per active owner"},
+  {t:"Churn Rate", v:"8.9%", d:-1.3, sub:"12-mo rolling"},
+  {t:"New vs Returning", v:"62% new", bar:62, sub:"38% returning buyers"},
+];
+document.getElementById("kpis").innerHTML = kpis.map(k=>`
+  <div class="card kpi"><span class="accent"></span><h3>${k.t}</h3>
+  <div class="val">${k.v}</div>
+  ${k.bar!==undefined?`<div class="bar"><i style="width:${k.bar}%"></i></div>`:``}
+  <div class="sub">${k.d!==undefined?`<span class="delta ${k.d>=0?'up':'down'}">${f.pct(k.d)} YoY</span>`:``}${k.sub}</div></div>`).join("");
+
+// ---------- 1. Ownership lifecycle funnel (horizontal decreasing bars) ----------
+const lcLabels=["Lead","Test Drive","Purchase","First Service","Repurchase"];
+const lcVals  =[42600, 19800, 8240, 7120, 1960];
+DS.add("lifecycle", el => new Chart(el,{type:"bar",data:{labels:lcLabels,
+  datasets:[{data:lcVals,backgroundColor:lcLabels.map((_,i)=>DS.colors()[i%8]),borderRadius:5}]},
+  options:(()=>{const o=DS.baseOpts({horizontal:true});
+    o.plugins.tooltip.callbacks={label:c=>DS.fmt.num(c.parsed.x)+" customers"};return o;})()}));
+
+// ---------- 2. RFM-style segmentation (clustered column) ----------
+const segNames=["Champions","Loyal","Potential","At-risk","Lost"];
+const segCount=[2180, 4360, 5240, 3680, 2960];
+DS.add("segments", el => new Chart(el,{type:"bar",data:{labels:segNames,
+  datasets:[{data:segCount,backgroundColor:segNames.map((_,i)=>DS.colors()[i%8]),borderRadius:5,barPercentage:.72}]},
+  options:(()=>{const o=DS.baseOpts();
+    o.plugins.tooltip.callbacks={label:c=>DS.fmt.num(c.parsed.y)+" customers"};return o;})()}));
+
+// ---------- 3. Cohort retention curves (3 cohorts × 6 periods) ----------
+const periods=["M0","M6","M12","M18","M24","M30"];
+DS.add("cohort", el => new Chart(el,{type:"line",data:{labels:periods,datasets:[
+  {label:"2023 cohort",data:[100,88,79,72,67,63],borderColor:DS.C('c1'),borderWidth:2.5,tension:.35,pointRadius:0},
+  {label:"2024 cohort",data:[100,91,83,77,72,null],borderColor:DS.C('c2'),borderWidth:2.5,tension:.35,pointRadius:0},
+  {label:"2025 cohort",data:[100,93,86,null,null,null],borderColor:DS.C('c3'),borderWidth:2.5,borderDash:[5,3],tension:.35,pointRadius:0},
+]},options:(()=>{const o=DS.baseOpts({legend:true,zero:false});
+  o.scales.y.ticks.callback=v=>v+'%';return o;})()}));
+
+// ---------- 4. Owners by tenure band (donut + legend) ----------
+const tenLabels=["<1 yr","1–2 yr","2–4 yr","4–6 yr","6 yr+"];
+const tenVals  =[5240, 4680, 4120, 2660, 1720];
+DS.add("tenure", el => new Chart(el,{type:"doughnut",data:{labels:tenLabels,
+  datasets:[{data:tenVals,backgroundColor:tenLabels.map((_,i)=>DS.colors()[i%8]),borderColor:DS.cssVar('--card'),borderWidth:3}]},
+  options:{cutout:"64%",maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:DS.tooltip()}}}));
+
+// ---------- legends + table (re-run on every reskin so colors track) ----------
+const sum = a => a.reduce((x,y)=>x+(y||0),0);
+
+// At-risk / top segments table: Customers, Avg CLV (฿), churn risk pill
+const segRows=[
+  ["Champions", 2180, 2150000, "Low"],
+  ["Loyal",     4360, 1620000, "Low"],
+  ["Potential", 5240,  940000, "Med"],
+  ["At-risk",   3680, 1180000, "High"],
+  ["Lost",      2960,  560000, "High"],
+];
+
+function fill(){
+  // tenure legend
+  const tot=sum(tenVals);
+  document.getElementById("tenureLegend").innerHTML = tenLabels.map((s,i)=>
+    `<span><span class="dot" style="background:${DS.colors()[i%8]}"></span>${s} · <b>${Math.round(tenVals[i]/tot*100)}%</b></span>`).join("");
+
+  // segment table with rankbar on Customers + colored churn-risk pill
+  const maxC=Math.max(...segRows.map(r=>r[1]));
+  const risk={
+    High:{c:DS.C('neg'),  bg:DS.cssVar('--neg-soft')},
+    Med :{c:DS.C('warn'), bg:'color-mix(in srgb, '+DS.C('warn')+' 15%, transparent)'},
+    Low :{c:DS.C('accent'),bg:DS.cssVar('--accent-soft')},
+  };
+  document.querySelector("#segTable tbody").innerHTML = segRows.map(([s,c,clv,rk])=>{
+    const r=risk[rk];
+    return `<tr>
+      <td><span class="rankbar" style="width:${c/maxC*42}px"></span>${s}</td>
+      <td class="num">${f.num(c)}</td>
+      <td class="num">${f.abbr(clv,'฿')}</td>
+      <td class="num"><span class="delta" style="color:${r.c};background:${r.bg}">${rk}</span></td>
+    </tr>`;
+  }).join("");
+}
+
+const _render = DS.renderAll;
+DS.renderAll = function(){ _render(); fill(); };
+
+// รองรับ ?skin=... (ลิงก์ตรงไปยัง skin ที่ต้องการ)
+const qSkin = new URLSearchParams(location.search).get("skin");
+if(qSkin){ document.body.className="skin-"+qSkin; const s=document.getElementById("skin"); if(s) s.value=qSkin; }
+DS.renderAll();
+</script>
+</body>
+</html>

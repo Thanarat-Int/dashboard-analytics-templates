@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Moodboard · Image References</title>
+<link rel="stylesheet" href="../_design-system/tokens.css" />
+<link rel="stylesheet" href="../_design-system/components.css" />
+<link rel="stylesheet" href="../_design-system/skins/skins.css" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="../_design-system/charts.js"></script>
+<style>
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:var(--gap)}
+  .fchip{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:6px 14px;
+    font-size:12.5px;color:var(--muted);cursor:pointer;box-shadow:var(--shadow);user-select:none}
+  .fchip.on{border-color:var(--accent);color:var(--accent);background:var(--accent-soft);font-weight:600}
+  .grid{column-count:4;column-gap:var(--gap)}
+  @media(max-width:1200px){.grid{column-count:3}} @media(max-width:900px){.grid{column-count:2}}
+  @media(max-width:560px){.grid{column-count:1}}
+  .shot{break-inside:avoid;margin-bottom:var(--gap);background:var(--card);border:1px solid var(--line);
+    border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);cursor:zoom-in;
+    transition:transform .12s,box-shadow .12s}
+  .shot:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(20,24,31,.16)}
+  .shot img{width:100%;display:block}
+  .shot .cap{padding:11px 14px}
+  .shot .t{font-size:13px;font-weight:600;color:var(--ink)}
+  .shot .tg{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+  .shot .tg span{font-size:10.5px;color:var(--muted);background:var(--bg);border:1px solid var(--line);
+    border-radius:5px;padding:1px 7px}
+  /* empty state */
+  .empty{background:var(--card);border:1px dashed var(--line);border-radius:var(--radius);
+    padding:40px;text-align:center;color:var(--muted);line-height:1.8;box-shadow:var(--shadow)}
+  .empty b{color:var(--ink)} .empty code{background:var(--accent-soft);color:var(--accent);
+    padding:2px 7px;border-radius:5px;font-size:13px}
+  /* lightbox */
+  .lb{position:fixed;inset:0;background:rgba(8,10,16,.86);display:none;align-items:center;justify-content:center;
+    z-index:100;cursor:zoom-out;padding:32px}
+  .lb.show{display:flex}
+  .lb img{max-width:92vw;max-height:84vh;border-radius:10px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+  .lb .cap{position:fixed;bottom:22px;left:0;right:0;text-align:center;color:#fff;font-size:14px;font-weight:600}
+  /* upload button (themed) */
+  .upbtn{background:var(--accent);color:var(--on-accent);border:none;border-radius:var(--radius-sm);
+    padding:8px 16px;font-size:12.5px;font-weight:700;font-family:var(--font);cursor:pointer;
+    display:flex;align-items:center;gap:7px;box-shadow:var(--shadow);transition:filter .12s,transform .12s}
+  .upbtn:hover{filter:brightness(1.08)} .upbtn:active{transform:translateY(1px)}
+  /* toast */
+  .toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px 20px;
+    box-shadow:0 12px 36px rgba(20,24,31,.22);display:flex;align-items:center;gap:11px;z-index:120;
+    font-size:13.5px;font-weight:600;color:var(--ink);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .toast .spin{width:17px;height:17px;border-radius:50%;border:2.5px solid var(--grid);
+    border-top-color:var(--accent);animation:spin .7s linear infinite;flex:none}
+  .toast .ok{width:20px;height:20px;border-radius:50%;background:var(--pos);color:#fff;flex:none;
+    display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  /* drag-drop overlay */
+  .dropmask{position:fixed;inset:0;background:var(--accent-soft);border:3px dashed var(--accent);
+    z-index:90;display:none;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:var(--accent)}
+  .dropmask.show{display:flex}
+  /* select & delete */
+  .shot{position:relative}
+  .pick{position:absolute;top:10px;left:10px;width:24px;height:24px;border-radius:7px;border:2px solid #fff;
+    background:rgba(0,0,0,.4);cursor:pointer;z-index:3;display:flex;align-items:center;justify-content:center;
+    color:#fff;font-size:14px;font-weight:800;box-shadow:0 1px 5px rgba(0,0,0,.35);opacity:0;transition:opacity .12s}
+  .shot:hover .pick{opacity:1}
+  .shot.sel .pick{opacity:1;background:var(--accent);border-color:#fff}
+  .shot.sel{outline:3px solid var(--accent);outline-offset:-3px}
+  .selbar{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(24px);background:var(--card);
+    border:1px solid var(--line);border-radius:14px;padding:10px 12px 10px 18px;box-shadow:0 14px 40px rgba(20,24,31,.28);
+    display:flex;align-items:center;gap:10px;z-index:115;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
+  .selbar.show{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0)}
+  .selbar .n{font-size:13.5px;font-weight:700;color:var(--ink);margin-right:4px}
+  .selbar button{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:9px;
+    padding:7px 13px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:var(--font)}
+  .selbar button:hover{filter:brightness(1.06)}
+  .selbar button.danger{background:var(--neg);border-color:var(--neg);color:#fff}
+  .confirm{position:fixed;inset:0;background:rgba(8,10,16,.6);display:none;align-items:center;justify-content:center;z-index:130;padding:24px}
+  .confirm.show{display:flex}
+  .confirm .box{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px 26px;max-width:380px;
+    text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.45)}
+  .confirm .box h4{font-size:16px;color:var(--ink);margin-bottom:8px}
+  .confirm .box p{font-size:13px;color:var(--muted);margin-bottom:18px;line-height:1.55}
+  .confirm .box .btns{display:flex;gap:10px;justify-content:center}
+  .confirm .box button{border-radius:9px;padding:9px 20px;font-size:13px;font-weight:700;cursor:pointer;
+    font-family:var(--font);border:1px solid var(--line)}
+  .confirm .box .cancel{background:var(--bg);color:var(--ink)}
+  .confirm .box .del{background:var(--neg);border-color:var(--neg);color:#fff}
+  /* star · drag · category */
+  .star{position:absolute;top:8px;right:10px;z-index:3;font-size:19px;line-height:1;cursor:pointer;
+    color:rgba(255,255,255,.55);text-shadow:0 1px 4px rgba(0,0,0,.55);transition:transform .1s,color .12s}
+  .star:hover{transform:scale(1.18)} .star.on{color:#F2B53C}
+  .cap .meta-row{display:flex;align-items:center;gap:8px;margin-top:9px}
+  .handle{cursor:grab;color:var(--faint);font-size:15px;user-select:none;flex:none}
+  .handle:active{cursor:grabbing}
+  .catsel{flex:1;min-width:0;background:var(--bg);border:1px solid var(--line);border-radius:7px;
+    padding:4px 7px;font-size:11.5px;color:var(--ink);font-family:var(--font);cursor:pointer}
+  .shot.dragging{opacity:.35}
+  .shot.over{outline:2px dashed var(--accent);outline-offset:-2px}
+  .fchip .st{color:#F2B53C}
+</style>
+</head>
+<body class="skin-byd-red">
+<div class="wrap">
+  <header class="ds-header">
+    <div class="brand">
+      <div class="logo"><span class="mark">MOOD</span><span class="tag">IMAGE REFS</span></div>
+      <div>
+        <h1>Moodboard <span class="tag-pill">Inspiration</span></h1>
+        <p>คลังรูป inspiration ที่คุณ gen เอง — ไว้ดูไอเดีย layout/สี/สไตล์ (ไม่ใช่ spec ที่เอาไปสร้างตรง ๆ)</p>
+      </div>
+    </div>
+    <div class="ctx">
+      <select class="skin-select" id="skin" onchange="DS.setSkin(this.value)">
+        <option value="byd-red">Skin: BYD Red</option>
+        <option value="finance-dark">Skin: Finance Dark</option>
+        <option value="saas-violet">Skin: SaaS Violet</option>
+        <option value="luxury-gold">Skin: Luxury Gold</option>
+        <option value="command-center">Skin: Command Center</option>
+      </select>
+      <button class="upbtn" id="upbtn">↑ อัปโหลดรูป</button>
+      <input type="file" id="upinput" accept="image/*" multiple hidden>
+      <div class="chip" id="count">— รูป</div>
+    </div>
+  </header>
+
+  <div class="filters" id="filters"></div>
+  <div id="board"></div>
+</div>
+
+<div class="lb" id="lb"><img id="lbimg" src="" alt=""><div class="cap" id="lbcap"></div></div>
+<div class="dropmask" id="dropmask">วางรูปที่นี่เพื่ออัปโหลด</div>
+<div class="toast" id="toast"></div>
+<div class="selbar" id="selbar">
+  <span class="n" id="selN">เลือก 0</span>
+  <button id="selall">เลือกทั้งหมด</button>
+  <button id="selclear">ล้าง</button>
+  <button class="danger" id="seldel">🗑 ลบที่เลือก</button>
+</div>
+<div class="confirm" id="confirm"><div class="box">
+  <h4 id="cfTitle">ลบรูป?</h4>
+  <p id="cfMsg">ลบแล้วกู้คืนไม่ได้</p>
+  <div class="btns"><button class="cancel" id="cfCancel">ยกเลิก</button><button class="del" id="cfOk">ลบ</button></div>
+</div></div>
+
+<script>
+const API = "/api/moodboard";
+// ประเภทที่อุตสาหกรรมรถยนต์ระดับ global (BYD) ต้องมี
+const CATEGORIES = ["Executive","Sales","Marketing","After-sales","Customer/CRM",
+                    "Finance","Operations","Inventory","Dealer/Region","Forecast","Other"];
+let shots = [], activeFilter = "all", selected = new Set(), draggedFile = null;
+
+const EMPTY = `<div class="empty">
+  <div style="font-size:34px;margin-bottom:8px">🖼️</div>
+  <b style="font-size:16px">ยังไม่มีรูปในคลัง</b><br>
+  กด <code>↑ อัปโหลดรูป</code> มุมขวาบน หรือ <b>ลากรูปมาวางบนหน้านี้</b> — ขึ้นแบบ real-time ทันที<br><br>
+  <span style="font-size:12.5px">รองรับ .png .jpg .webp .svg · หลังอัปโหลด: ★ ติดดาว · เลือกประเภท (Executive/Marketing/…) · ลากสลับตำแหน่ง · เลือกหลายรูป/ทั้งหมดเพื่อลบ</span>
+</div>`;
+
+async function load(){
+  try{
+    const r = await fetch(API); const j = await r.json();
+    shots = j.data || [];
+  }catch(e){ shots = []; }
+  selected = new Set([...selected].filter(f => shots.some(s=>s.file===f)));  // prune ที่ถูกลบ
+  document.getElementById("count").textContent = shots.length + " รูป";
+  buildFilters(); render();
+}
+
+function visible(){
+  if(activeFilter==="starred") return shots.filter(s=>s.starred);
+  if(activeFilter.indexOf("cat:")===0){ const c=activeFilter.slice(4); return shots.filter(s=>s.category===c); }
+  return shots;
+}
+
+function buildFilters(){
+  const box = document.getElementById("filters");
+  if(!shots.length){ box.innerHTML=""; return; }
+  const cats = [...new Set(shots.map(s=>s.category).filter(Boolean))].sort();
+  const starN = shots.filter(s=>s.starred).length;
+  const chips = [["all","ทั้งหมด"], ["starred",`<span class="st">★</span> ติดดาว${starN?` ${starN}`:''}`],
+                 ...cats.map(c=>["cat:"+c, c])];
+  box.innerHTML = chips.map(([v,l])=>`<div class="fchip ${v===activeFilter?'on':''}" data-f="${v}">${l}</div>`).join("");
+  box.querySelectorAll(".fchip").forEach(c=>c.onclick=()=>{ activeFilter=c.dataset.f; buildFilters(); render(); });
+}
+
+function catOptions(cur){
+  return `<option value="">— ประเภท —</option>` +
+    CATEGORIES.map(c=>`<option value="${c}" ${c===cur?'selected':''}>${c}</option>`).join("");
+}
+
+function render(){
+  const board = document.getElementById("board");
+  if(!shots.length){ board.innerHTML = EMPTY; updateSelbar(); return; }
+  board.innerHTML = `<div class="grid">` + visible().map(s=>{
+    const i = shots.indexOf(s), sel = selected.has(s.file);
+    return `<div class="shot ${sel?'sel':''}" draggable="true" data-file="${s.file}" data-i="${i}">
+      <div class="pick">${sel?'✓':''}</div>
+      <div class="star ${s.starred?'on':''}" title="ติดดาว">★</div>
+      <img loading="lazy" src="${s.url}" alt="${s.title}">
+      <div class="cap"><div class="t">${s.title}</div>
+        <div class="meta-row"><span class="handle" title="ลากเพื่อสลับตำแหน่ง">⠿</span>
+          <select class="catsel">${catOptions(s.category)}</select></div>
+      </div></div>`;
+  }).join("") + `</div>`;
+  wireCards(); updateSelbar();
+}
+
+function wireCards(){
+  document.querySelectorAll(".shot").forEach(el=>{
+    const file = el.dataset.file;
+    el.querySelector(".pick").onclick = e=>{ e.stopPropagation(); toggleSel(file); };
+    el.querySelector(".star").onclick = e=>{ e.stopPropagation(); toggleStar(file); };
+    const cs = el.querySelector(".catsel");
+    cs.onclick = e=>e.stopPropagation();
+    cs.onchange = e=>{ e.stopPropagation(); setCategory(file, e.target.value); };
+    el.querySelector("img").onclick = ()=> openLb(+el.dataset.i);
+    el.addEventListener("dragstart", e=>{ draggedFile=file; el.classList.add("dragging");
+      e.dataTransfer.effectAllowed="move"; e.dataTransfer.setData("text/plain", file); });
+    el.addEventListener("dragend", ()=>{ draggedFile=null; el.classList.remove("dragging");
+      document.querySelectorAll(".shot.over").forEach(x=>x.classList.remove("over")); });
+    el.addEventListener("dragover", e=>{ if(draggedFile){ e.preventDefault(); e.stopPropagation(); el.classList.add("over"); } });
+    el.addEventListener("dragleave", ()=> el.classList.remove("over"));
+    el.addEventListener("drop", e=>{ if(draggedFile){ e.preventDefault(); e.stopPropagation();
+      el.classList.remove("over"); reorder(draggedFile, file); } });
+  });
+}
+
+function openLb(i){
+  const s = shots[i]; if(!s) return;
+  document.getElementById("lbimg").src = s.url;
+  document.getElementById("lbcap").textContent = s.title;
+  document.getElementById("lb").classList.add("show");
+}
+document.getElementById("lb").onclick = ()=>document.getElementById("lb").classList.remove("show");
+
+// ---------- upload ----------
+let toastTimer = null;
+function toast(msg, kind){   // kind: "load" | "ok" | "err"
+  const t = document.getElementById("toast");
+  const icon = kind==="load" ? `<span class="spin"></span>`
+             : kind==="ok"   ? `<span class="ok">✓</span>`
+             : `<span class="ok" style="background:var(--neg)">!</span>`;
+  t.innerHTML = icon + `<span>${msg}</span>`;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  if(kind!=="load") toastTimer = setTimeout(()=>t.classList.remove("show"), 2600);
+}
+
+async function uploadFiles(fileList){
+  const imgs = [...fileList].filter(f=>f.type.startsWith("image/"));
+  if(!imgs.length){ toast("ไม่พบไฟล์รูป", "err"); return; }
+  toast(`กำลังอัปโหลด ${imgs.length} รูป…`, "load");
+  let ok = 0;
+  for(const file of imgs){
+    try{
+      const r = await fetch(`/api/moodboard/upload?name=${encodeURIComponent(file.name)}`, {method:"POST", body:file});
+      const j = await r.json();
+      if(j && j.ok) ok++;
+    }catch(e){ /* skip */ }
+  }
+  await load();                                   // refresh real-time
+  if(ok===imgs.length) toast(`อัปโหลดสำเร็จ ${ok} รูป`, "ok");
+  else if(ok>0)        toast(`อัปโหลด ${ok}/${imgs.length} รูป (บางไฟล์ไม่สำเร็จ)`, "ok");
+  else                 toast(`อัปโหลดไม่สำเร็จ`, "err");
+}
+
+const upBtn = document.getElementById("upbtn");
+const upInput = document.getElementById("upinput");
+upBtn.onclick = ()=>upInput.click();
+upInput.onchange = ()=>{ if(upInput.files.length){ uploadFiles(upInput.files); upInput.value=""; } };
+
+// drag & drop ทั้งหน้า
+const mask = document.getElementById("dropmask");
+let dragDepth = 0;
+window.addEventListener("dragenter", e=>{ e.preventDefault(); if([...e.dataTransfer.types].includes("Files")){ dragDepth++; mask.classList.add("show"); } });
+window.addEventListener("dragover", e=>e.preventDefault());
+window.addEventListener("dragleave", e=>{ e.preventDefault(); if(--dragDepth<=0){ dragDepth=0; mask.classList.remove("show"); } });
+window.addEventListener("drop", e=>{ e.preventDefault(); dragDepth=0; mask.classList.remove("show");
+  if(e.dataTransfer.files.length) uploadFiles(e.dataTransfer.files); });
+
+// ---------- persist meta (order/starred/category) ----------
+async function saveMeta(patch){
+  try{ await fetch("/api/moodboard/meta",{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({meta:patch})}); }catch(e){}
+}
+
+// ---------- star / category ----------
+function toggleStar(file){
+  const s = shots.find(x=>x.file===file); if(!s) return;
+  s.starred = !s.starred; saveMeta({[file]:{starred:s.starred}}); buildFilters(); render();
+}
+function setCategory(file, val){
+  const s = shots.find(x=>x.file===file); if(!s) return;
+  s.category = val; saveMeta({[file]:{category:val}}); buildFilters(); render();
+}
+
+// ---------- reorder (drag) ----------
+function reorder(src, target){
+  if(src===target) return;
+  const arr = shots.map(s=>s.file);
+  const from = arr.indexOf(src), to = arr.indexOf(target);
+  if(from<0||to<0) return;
+  arr.splice(to, 0, arr.splice(from,1)[0]);
+  shots.sort((a,b)=> arr.indexOf(a.file) - arr.indexOf(b.file));
+  const patch = {}; shots.forEach((s,i)=>{ s.order=i; patch[s.file]={order:i}; });
+  render(); saveMeta(patch);
+}
+
+// ---------- selection + delete ----------
+function toggleSel(file){
+  if(selected.has(file)) selected.delete(file); else selected.add(file);
+  const el = document.querySelector('.shot[data-file="'+file+'"]');
+  if(el){ const on=selected.has(file); el.classList.toggle("sel",on); el.querySelector(".pick").textContent = on?'✓':''; }
+  updateSelbar();
+}
+function updateSelbar(){
+  const n = selected.size;
+  document.getElementById("selbar").classList.toggle("show", n>0);
+  document.getElementById("selN").textContent = "เลือก "+n;
+  document.getElementById("selall").textContent = (shots.length>0 && n>=shots.length) ? "ยกเลิกทั้งหมด" : "เลือกทั้งหมด";
+}
+document.getElementById("selall").onclick = ()=>{
+  if(selected.size>=shots.length) selected.clear(); else shots.forEach(s=>selected.add(s.file));
+  render();
+};
+document.getElementById("selclear").onclick = ()=>{ selected.clear(); render(); };
+document.getElementById("seldel").onclick = ()=>{
+  if(!selected.size) return;
+  askConfirm(`ลบ ${selected.size} รูป?`, "ลบแล้วกู้คืนไม่ได้", ()=>deleteFiles([...selected]));
+};
+async function deleteFiles(files){
+  toast(`กำลังลบ ${files.length} รูป…`, "load");
+  try{
+    const r = await fetch("/api/moodboard/delete",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({files})});
+    const j = await r.json(); selected.clear(); await load();
+    toast(`ลบแล้ว ${j.deleted||0} รูป`, "ok");
+  }catch(e){ toast("ลบไม่สำเร็จ", "err"); }
+}
+
+// ---------- confirm dialog ----------
+const confirmEl = document.getElementById("confirm");
+function askConfirm(title, msg, onOk){
+  document.getElementById("cfTitle").textContent = title;
+  document.getElementById("cfMsg").textContent = msg;
+  confirmEl.classList.add("show");
+  document.getElementById("cfOk").onclick = ()=>{ confirmEl.classList.remove("show"); onOk(); };
+}
+document.getElementById("cfCancel").onclick = ()=> confirmEl.classList.remove("show");
+confirmEl.onclick = e=>{ if(e.target===confirmEl) confirmEl.classList.remove("show"); };
+
+const qSkin = new URLSearchParams(location.search).get("skin");
+if(qSkin){ document.body.className="skin-"+qSkin; const s=document.getElementById("skin"); if(s) s.value=qSkin; }
+load();
+</script>
+</body>
+</html>
