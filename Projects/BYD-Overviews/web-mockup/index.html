@@ -152,7 +152,7 @@
 </div>
 
 <script>
-const API = "/api";   // relative -> ใช้กับ server ไหนก็ได้ที่มี route /api ; ของจริงเปลี่ยนเป็น base URL ของ BYD
+const API = "../01-data-raw/mock-api";   // อ่าน snapshot JSON ตรง (relative) -> ทำงานทั้ง local + GitHub Pages ; ของจริงเปลี่ยนเป็น base URL ของ BYD API
 const CY = 2026, PY = 2025;
 const RED="#E2231A", CHARCOAL="#2B2F36", GREY="#8A9099";
 // model ramp: แดงแบรนด์ -> ไล่เป็นเทา (พรีเมียม ไม่เป็นรุ้ง)
@@ -171,8 +171,8 @@ const pct = n => (n>=0?"+":"")+n.toFixed(1)+"%";
 
 async function load(){
   const [o,t] = await Promise.all([
-    fetch(`${API}/orders`).then(r=>r.json()),
-    fetch(`${API}/targets`).then(r=>r.json()),
+    fetch(`${API}/orders.json`).then(r=>r.json()),
+    fetch(`${API}/targets.json`).then(r=>r.json()),
   ]);
   return {orders:o.data, targets:t.data, asof:o.meta.generated_at};
 }
@@ -272,7 +272,7 @@ function build(D){
     <td class="num">${(v.u/unitsYTD*100).toFixed(1)}%</td></tr>`).join("");
 
   document.getElementById("foot").textContent =
-    `Mock data · ${fmtUnits(orders.length)} orders · source: ${API}/orders · grain: order-level`;
+    `Mock data · ${fmtUnits(orders.length)} orders · source: orders.json (snapshot) · grain: order-level`;
 }
 
 const GRID="#EAECEF", TICK="#697079";

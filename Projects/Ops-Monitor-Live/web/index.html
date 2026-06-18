@@ -63,7 +63,7 @@
 </div>
 
 <script>
-const API = "/api";   // relative -> ใช้กับ server ไหนก็ได้ที่มี route /api
+const API = "../01-data-raw/mock-api";   // อ่าน snapshot JSON ตรง (relative) -> ทำงานทั้ง local + GitHub Pages
 const f = DS.fmt;
 
 // ---------- data holders (filled from API) ----------
@@ -167,8 +167,8 @@ async function load(){
   const loadingEl = document.getElementById("loading");
   try {
     const [mRes, iRes] = await Promise.all([
-      fetch(`${API}/metrics`),
-      fetch(`${API}/incidents`),
+      fetch(`${API}/metrics.json`),
+      fetch(`${API}/incidents.json`),
     ]);
     if(!mRes.ok || !iRes.ok) throw new Error("HTTP "+mRes.status+"/"+iRes.status);
     const mJson = await mRes.json();
