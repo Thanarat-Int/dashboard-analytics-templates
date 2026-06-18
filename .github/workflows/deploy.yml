@@ -1,0 +1,59 @@
+name: Validate & Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  # ---------- CI: quality gate (runs on every push & PR) ----------
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Validate JSON (themes, captions, mock data)
+        run: |
+          python - <<'PY'
+          import glob, json, sys
+          bad = []
+          for f in glob.glob("**/*.json", recursive=True):
+              try:
+                  json.load(open(f, encoding="utf-8"))
+              except Exception as e:
+                  bad.append(f"{f}: {e}")
+          if bad:
+              print("Invalid JSON:\n" + "\n".join(bad)); sys.exit(1)
+          print("All JSON valid")
+          PY
+      - name: Python syntax check
+        run: python -m compileall -q serve.py Projects
+
+  # ---------- CD: deploy static site (main only) ----------
+  deploy:
+    needs: validate
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: "."
+      - id: deployment
+        uses: actions/deploy-pages@v4
