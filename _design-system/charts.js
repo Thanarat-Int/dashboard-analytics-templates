@@ -95,9 +95,11 @@ document.addEventListener('DOMContentLoaded', function () {
   if (document.querySelector('.ds-home')) return;          // มีแล้วไม่ใส่ซ้ำ
   var home = document.createElement('a');
   home.className = 'chip ds-home';
-  // หน้าใน /_templates/ -> กลับ Template Gallery ; หน้าอื่น (project) -> กลับ hub
+  // คำนวณ root ของไซต์จาก path จริง -> รองรับทั้ง local (อยู่ที่ /) และ GitHub Pages (อยู่ใต้ /<repo>/)
+  var m = location.pathname.match(/^(.*?\/)(?:_templates|_moodboard|Projects)\//);
+  var root = m ? m[1] : './';
   var inTemplates = location.pathname.indexOf('/_templates/') !== -1;
-  home.href = inTemplates ? '/_templates/' : '/';
+  home.href = inTemplates ? root + '_templates/' : root;   // template -> gallery ; อื่น ๆ -> hub
   home.innerHTML = inTemplates ? '← Template Gallery' : '← ⌂ หน้าหลัก';
   var ctx = document.querySelector('.ds-header .ctx');
   if (ctx) { ctx.insertBefore(home, ctx.firstChild); }
